@@ -1,0 +1,1 @@
+DISCORD_TOKEN="discord_app_token_here" MODS_CHANNEL_ID="discord_channel_id_here" node main.js

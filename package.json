@@ -1,0 +1,17 @@
+{
+  "name": "onb-modlister",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^13.5.1",
+    "jszip": "^3.7.1",
+    "wasmoon": "^1.12.1"
+  }
+}

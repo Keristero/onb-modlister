@@ -1,0 +1,8 @@
+version: '2'
+
+services:
+  onb-modlister:
+    build: .
+    image: onb-modlister
+    restart: unless-stopped
+    network_mode: 'host'
