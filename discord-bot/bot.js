@@ -33,6 +33,7 @@ async function main() {
         await download(attachment.url, download_path)
         console.log(`successfully downloaded ${attachment.name}`)
     }
+    
 }
 
 function download(url, destination_file) {
