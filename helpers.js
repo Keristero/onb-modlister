@@ -23,12 +23,12 @@ async function open_json(json_path){
 }
 
 function sanitize_string(input_string){
-    return input_string.replace(/[^a-z0-9/.]/gi, '_')
+    return input_string.replace(/[^a-z0-9/]/gi, '_')
 }
 
-async function write_image_data_to_file(folder_path,file_name,image_data){
+async function write_image_data_to_file(folder_path,file_name,extension,image_data){
     let safe_filename = sanitize_string(file_name)
-    let file_path = join(folder_path,safe_filename)
+    let file_path = `${join(folder_path,safe_filename)}.${extension}`
     await writeFile(file_path,image_data)
     return file_path
 }

@@ -115,17 +115,6 @@ async function getPackageInfo(entry_file) {
         packageInfo.description = description;
       },
 
-      // dependencies
-      requires_character: (id) => {
-        packageInfo.dependencies.push(id);
-      },
-      requires_card: (id) => {
-        packageInfo.dependencies.push(id);
-      },
-      requires_library: (id) => {
-        packageInfo.dependencies.push(id);
-      },
-
       // subpackages
       define_card: (id, path) => {
         packageInfo.subpackages.push(id);
@@ -249,6 +238,16 @@ function implementSupportingAPI(lua,packageInfo) {
     load_audio: (path) => path,
     define_character: (id, path) => {
       packageInfo.subpackages.push(id);
+    },
+    // dependencies
+    requires_character: (id) => {
+      packageInfo.dependencies.push(id);
+    },
+    requires_card: (id) => {
+      packageInfo.dependencies.push(id);
+    },
+    requires_library: (id) => {
+      packageInfo.dependencies.push(id);
     },
   });
 

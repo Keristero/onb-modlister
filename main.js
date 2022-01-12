@@ -57,11 +57,11 @@ async function main() {
         console.log(mod_info)
         //save images from mod_info to disk for previewing
         if(mod_info.detail.icon){
-            let image_path = await write_image_data_to_file(`./images`,`${mod_info.id}_icon.png`,mod_info.detail.icon)
+            let image_path = await write_image_data_to_file(`./images`,`${mod_info.id}_icon`,'png',mod_info.detail.icon)
             mod_info.detail.icon = image_path
         }
-        if(mod_info.detail.icon){
-            let image_path = await write_image_data_to_file(`./images`,`${mod_info.id}_preview.png`,mod_info.detail.preview)
+        if(mod_info.detail.preview){
+            let image_path = await write_image_data_to_file(`./images`,`${mod_info.id}_preview`,'png',mod_info.detail.preview)
             mod_info.detail.preview = image_path
         }
         
