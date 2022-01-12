@@ -170,6 +170,7 @@ async function getPackageInfo(entry_file) {
       set_mugshot_animation_path: () => {
         packageInfo.type = "player";
       },
+      set_emotions_texture_path:()=>{},
 
       // cards, encounters, and players
       set_preview_texture: (path) => {
@@ -219,7 +220,7 @@ function implementSupportingAPI(lua,packageInfo) {
   lua.global.set("_modpath", "");
   lua.global.set("_folderpath", "");
 
-  lua.global.set("include",async(include_path)=>{
+  lua.global.set("include",(include_path)=>{
     if(include_path[0] == "/"){
       include_path = include_path.substr(1,include_path.length)
     }

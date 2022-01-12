@@ -1,0 +1,88 @@
+/* fonts */
+@font-face { font-family: BN6; src: url('/fonts/BN6FontThin.ttf'); }
+@font-face { font-family: BN6;font-weight: bold; src: url('/fonts/BN6FontBold.ttf'); }  
+
+/* main styles */
+
+body{
+    background-color: lightblue;
+    image-rendering: pixelated;
+    font-family: BN6;
+}
+
+div {
+    padding:0;
+    margin:0;
+}
+p{
+    padding:0;
+    margin:0;
+}
+
+#mods {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 10px;
+}
+
+.mod{
+    position:relative;
+    width: 200px;
+    height: 200px;
+    background-color:rgba(255, 255, 255, 0.329);
+    text-align: center;
+    overflow:hidden;
+    box-shadow: 2px 5px 10px rgba(0, 0, 0, 0.287);
+}
+
+/* styles for properties of the mod nodes */
+.name{
+    display:block;
+    font-weight: bold;
+    top: 0px;
+    left: 0px;
+    background-color: white;
+}
+.chip_preview{
+    height:96px;
+}
+.player_preview{
+    height:128px;
+    filter: drop-shadow(0px 0px 2px rgb(0, 0, 0));
+}
+.download{
+    display:inline-block;
+    position: absolute;
+    bottom:0px;
+    right: 0px;
+}
+.nft{
+    display:inline-block;
+    position: absolute;
+    bottom:0px;
+    left: 0px;
+}
+.description{
+    display:inline-block;
+    position: absolute;
+    bottom:20px;
+    left: 0px;
+    padding-left:2px;
+    padding-right:2px;
+}
+
+/* card class backgrounds */
+.Standard{
+    background-color:rgba(254, 255, 217, 0.657);
+}
+.Mega{
+    background-color:rgba(126, 240, 255, 0.657);
+}
+.Giga{
+    background-color:rgba(126, 240, 255, 0.657);
+}
+.Dark{
+    background-color:rgba(105, 0, 146, 0.342);
+}
