@@ -1,6 +1,7 @@
 const { access } = require('fs/promises')
 const { constants } = require('fs')
 const { readFile, writeFile } = require('fs/promises')
+const {join} = require('path')
 
 async function file_exists(file_path) {
     try {
@@ -21,9 +22,20 @@ async function open_json(json_path){
     return obj
 }
 
+function sanitize_string(input_string){
+    return input_string.replace(/[^a-z0-9/.]/gi, '_')
+}
+
+async function write_image_data_to_file(folder_path,file_name,image_data){
+    let safe_filename = sanitize_string(file_name)
+    let file_path = join(folder_path,safe_filename)
+    await writeFile(file_path,image_data)
+    return file_path
+}
+
 async function save_to_json(json_path,data){
     let empty_json_string = JSON.stringify(data)
     await writeFile(json_path,empty_json_string)
 }
 
-module.exports = {file_exists,open_json,save_to_json}
+module.exports = {file_exists,open_json,save_to_json,write_image_data_to_file}

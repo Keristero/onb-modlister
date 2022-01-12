@@ -1,7 +1,7 @@
 const https = require('https'); // or 'https' for https:// URLs
 const {createWriteStream, unlink } = require('fs')
 const { resolve, parse } = require('path')
-const {file_exists} = require('./helpers.js')
+const {file_exists,write_image_data_to_file} = require('./helpers.js')
 const { readFile } = require('fs/promises')
 
 const { scrapePackage } = require('./package-scraper/scrapePackage.js')
@@ -56,8 +56,14 @@ async function main() {
         let mod_info = await parse_mod_info(attachment.path)
         console.log(mod_info)
         //save images from mod_info to disk for previewing
-        mod_info.detail.icon = null
-        mod_info.detail.preview = null
+        if(mod_info.detail.icon){
+            let image_path = await write_image_data_to_file(`./images`,`${mod_info.id}_icon.png`,mod_info.detail.icon)
+            mod_info.detail.icon = image_path
+        }
+        if(mod_info.detail.icon){
+            let image_path = await write_image_data_to_file(`./images`,`${mod_info.id}_preview.png`,mod_info.detail.preview)
+            mod_info.detail.preview = image_path
+        }
         
         await modlist.add_mod(mod_info,attachment_metadata)
     }
