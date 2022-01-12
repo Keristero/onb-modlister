@@ -198,6 +198,12 @@ function implementSupportingAPI(lua) {
   lua.global.set("_modpath", "");
   lua.global.set("_folderpath", "");
 
+  lua.global.set("include",(include_path)=>{
+    console.log('lua tried including',include_path)
+    let require_file = lua.global.get("require");
+    return require_file?.(include_path);
+  })
+
   lua.global.set("Engine", {
     load_texture: (path) => path,
     load_audio: (path) => path,
@@ -239,6 +245,7 @@ function implementSupportingAPI(lua) {
     Dark: "Dark",
   });
 }
+
 
 module.exports = {
   scrapePackage,

@@ -24,20 +24,28 @@ class Discordbot extends EventEmitter{
     get_all_attachments_in_channel(){
         return new Promise(async (resolve, reject) => {
             const channel = await this.client.channels.fetch(this.channel_id)
-            const fetched_threads = await channel.threads.fetch()
+            //fetch all threads from channel, active and inactive
+            const fetched_threads = await channel.threads.fetchActive()
+            const fetched_archived_threads = await channel.threads.fetchArchived()
+            const threads = fetched_threads.threads.concat(fetched_archived_threads.threads)
+
             let attachments = []
-            //console.log(fetched_threads)
-            fetched_threads.threads.forEach(async (thread) => {
-                const messages = await thread.messages.fetch()
-                messages.forEach(async (message) => {
+            let thread_promises = []
+            threads.forEach(async (thread) => {
+                let thread_fetch = thread.messages.fetch()
+                thread_promises.push(thread_fetch)
+                const messages = await thread_fetch
+                messages.forEach((message) => {
                     message.attachments.forEach((attachment) => {
+                        attachment.timestamp = message.createdTimestamp
                         attachment.author_name = message.author.username
                         attachment.author_id = message.author.id
                         attachments.push(attachment)
                     })
                 })
-                resolve(attachments)
             })
+            await Promise.all(thread_promises)
+            resolve(attachments)
         })
     }
 }

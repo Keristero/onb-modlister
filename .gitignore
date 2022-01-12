@@ -1,4 +1,5 @@
 ./docker-compose.yml
 ./run.sh
+modlist.json
 node_modules/
 run.sh
