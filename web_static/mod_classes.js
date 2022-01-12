@@ -19,10 +19,31 @@ class ModNode{
         if(!this.element){
             this.element = document.createElement('div')
         }
+        if(!this.div_name){
+            this.div_name = document.createTextNode("")
+            this.element.appendChild(this.div_name)
+        }
         if(!this.div_text){
             this.div_text = document.createTextNode("")
             this.element.appendChild(this.div_text)
         }
-        this.div_text.textContent = this.id
+        this.div_name.textContent = this.name
+        this.div_text.textContent = this.description
+        console.log('updated',this.data?.data?.shortname)
+    }
+    get description(){
+        if(this.data?.data?.description != ""){
+            return this.data?.data?.description
+        }
+        return this.type
+    }
+    get name(){
+        if(this.data?.data?.name != ""){
+            return this.data?.data?.name
+        }
+        if(this.data?.data?.detail?.props?.shortname != ""){
+            return this.data?.data?.detail?.props?.shortname
+        }
+        return this.data.id
     }
 }
