@@ -108,9 +108,6 @@ async function getPackageInfo(entry_file) {
       set_name: (name) => {
         packageInfo.name = name;
       },
-      as_program:()=>{
-        packageInfo.type = "blocks";
-      },
       set_description: (description) => {
         packageInfo.description = description;
       },
@@ -134,6 +131,10 @@ async function getPackageInfo(entry_file) {
       },
       set_mutator: () => {
         packageInfo.type = "blocks";
+      },
+      as_program:()=>{
+        packageInfo.type = "blocks";
+        packageInfo.detail.is_program = true;
       },
 
       // cards
