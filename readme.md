@@ -5,7 +5,6 @@
 1. store mod info in json ✔️
 1. allow replacement of mods by same author ✔️
 1. save mod images to disk and replace the original blobs with that path ✔️
-1. find latest version of each package (per submitted author)
 1. add basic webserver
 1. send list of latest mods to webserver
 1. display mods on webserver
@@ -16,3 +15,4 @@
 
 # potential features
 1. scan for bad code
+1. react to attachments in the mods channel with a "Yes" or "No" sentiment emoji to say if the mod was able to be listed

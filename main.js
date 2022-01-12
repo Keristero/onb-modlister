@@ -8,6 +8,7 @@ const { scrapePackage } = require('./package-scraper/scrapePackage.js')
 const bot = require('./discord-bot/bot.js')
 const mod_list = require('./modlist.js');
 const modlist = require('./modlist.js');
+const webserver = require('./webserver.js')
 
 bot.on('ready', () => {
     main()

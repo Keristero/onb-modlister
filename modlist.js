@@ -14,6 +14,9 @@ class Modlist{
         }
         return null
     }
+    get_all(){
+        return this.modlist
+    }
     async add_mod(mod_info,attachment_metadata){
         let new_mod = {
             data:mod_info,
