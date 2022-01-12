@@ -1,16 +1,47 @@
 const JSZip = require("jszip");
 const { LuaFactory } = require("wasmoon");
-const { normalize: normalizePath } = require("path");
+const { normalize: normalizePath ,dirname} = require("path");
+
+const max_memory = 100000
+const banned_libs = ['io','os','coroutine','string','utf8','debug','package']
 
 const luaFactory = new LuaFactory();
+
+const preloaded_lua_files = {}
+let current_path = ""
+
+async function load_zip_and_luafiles(zip) {
+  //preload all the lua files in the zip, because we need instant access to them
+  for (let relativePath in zip.files) {
+    let file = zip.files[relativePath]
+    console.log("iterating over", relativePath);
+    if (file.name.match(/.lua$/gmi)) {
+      //attach dirname, and preloaded text to the file object for later
+      let directory = dirname(relativePath)
+      let preloaded_text = await zip.file(relativePath).async("string")
+      preloaded_lua_files[file.name] = {
+        relativePath:relativePath,
+        directory:directory,
+        preloaded_text:preloaded_text
+      }
+      console.log(`loaded lua file ${relativePath}`)
+    }
+  }
+}
+
+function update_path_and_run_lua(lua,preloaded_lua){
+  current_path = preloaded_lua.directory
+  let modded_text = `local _folderpath = "${current_path}"\n${preloaded_lua.preloaded_text}`
+  console.log(modded_text)
+  return lua.doStringSync(modded_text)
+}
 
 // can "throw", make sure to .catch()/try catch
 async function scrapePackage(zipFile) {
   const zip = await JSZip.loadAsync(zipFile);
+  await load_zip_and_luafiles(zip)
 
-  const packageInfo = await getPackageInfo(
-    await zip.file("entry.lua").async("string")
-  );
+  const packageInfo = await getPackageInfo(preloaded_lua_files['entry.lua']);
 
   const extractImage = async function (path) {
     if (!path || path == "") {
@@ -39,7 +70,7 @@ async function scrapePackage(zipFile) {
   return packageInfo;
 }
 
-async function getPackageInfo(entryLua) {
+async function getPackageInfo(entry_file) {
   const DEFAULT_PACKAGE_TYPE = "lib";
   const packageInfo = {
     type: DEFAULT_PACKAGE_TYPE, // "blocks" | "card" | "encounter" | "lib" | "player"
@@ -64,10 +95,11 @@ async function getPackageInfo(entryLua) {
   };
 
   // Create a standalone lua environment from the factory
-  const lua = await luaFactory.createEngine();
+  const lua = await luaFactory.createEngine({ traceAllocations: true });
 
   try {
-    implementSupportingAPI(lua);
+    disableScaryThings(lua)
+    implementSupportingAPI(lua,packageInfo);
 
     const package_arg = {
       declare_package_id: (id) => {
@@ -75,6 +107,9 @@ async function getPackageInfo(entryLua) {
       },
       set_name: (name) => {
         packageInfo.name = name;
+      },
+      as_program:()=>{
+        packageInfo.type = "blocks";
       },
       set_description: (description) => {
         packageInfo.description = description;
@@ -92,9 +127,6 @@ async function getPackageInfo(entryLua) {
       },
 
       // subpackages
-      define_character: (id, path) => {
-        packageInfo.subpackages.push(id);
-      },
       define_card: (id, path) => {
         packageInfo.subpackages.push(id);
       },
@@ -171,7 +203,7 @@ async function getPackageInfo(entryLua) {
     };
 
     // load
-    await lua.doString(entryLua);
+    update_path_and_run_lua(lua,entry_file)
 
     // call package_* functions
     const package_requires_scripts = lua.global.get("package_requires_scripts");
@@ -194,19 +226,30 @@ async function getPackageInfo(entryLua) {
   return packageInfo;
 }
 
-function implementSupportingAPI(lua) {
+function implementSupportingAPI(lua,packageInfo) {
   lua.global.set("_modpath", "");
   lua.global.set("_folderpath", "");
 
-  lua.global.set("include",(include_path)=>{
+  lua.global.set("include",async(include_path)=>{
+    if(include_path[0] == "/"){
+      include_path = include_path.substr(1,include_path.length)
+    }
     console.log('lua tried including',include_path)
-    let require_file = lua.global.get("require");
-    return require_file?.(include_path);
+    let file = preloaded_lua_files[include_path]
+    if(!file){
+      include_path = normalizePath(`${current_path}/${include_path}`)
+      file = preloaded_lua_files[include_path]
+    }
+    console.log(`running lua from zip path ${include_path}`)
+    return update_path_and_run_lua(lua,file)
   })
 
   lua.global.set("Engine", {
     load_texture: (path) => path,
     load_audio: (path) => path,
+    define_character: (id, path) => {
+      packageInfo.subpackages.push(id);
+    },
   });
 
   lua.global.set("Color", {
@@ -244,6 +287,20 @@ function implementSupportingAPI(lua) {
     Giga: "Giga",
     Dark: "Dark",
   });
+}
+
+function disableScaryThings(lua){
+  lua.global.setMemoryMax(max_memory)
+  console.log(`memory used`,lua.global.getMemoryUsed(),`/`,lua.global.getMemoryMax())
+
+  for(let lib_name of banned_libs){
+    lua.global.set(lib_name,"")
+  }
+
+  lua.global.set("require","")
+  lua.global.set("dofile","")
+  lua.global.set("loadfile","")
+  lua.global.set("loadstring","")
 }
 
 

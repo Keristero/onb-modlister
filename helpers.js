@@ -38,4 +38,4 @@ async function save_to_json(json_path,data){
     await writeFile(json_path,empty_json_string)
 }
 
-module.exports = {file_exists,open_json,save_to_json,write_image_data_to_file}
+module.exports = {file_exists,open_json,save_to_json,write_image_data_to_file,sanitize_string}

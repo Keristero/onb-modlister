@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "discord.js": "^13.5.1",
+    "extract-zip": "^2.0.1",
     "jszip": "^3.7.1",
     "wasmoon": "^1.12.1"
   }

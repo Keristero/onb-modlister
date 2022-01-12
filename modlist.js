@@ -1,5 +1,5 @@
 const { ThreadChannel } = require('discord.js')
-const {open_json,save_to_json} = require('./helpers.js')
+const {open_json,save_to_json,sanitize_string} = require('./helpers.js')
 const modlist_json_path = `./modlist.json`
 
 class Modlist{
@@ -19,7 +19,7 @@ class Modlist{
             data:mod_info,
             attachement_data:attachment_metadata
         }
-        let mod_id = new_mod.data.id
+        let mod_id = sanitize_string(new_mod.data.id)
         let mod_timestamp = new_mod.attachement_data.timestamp
         let mod_author = new_mod.attachement_data.author_id
 

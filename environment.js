@@ -3,7 +3,4 @@ const environment = {
     MODS_CHANNEL_ID:String(process.env.MODS_CHANNEL_ID || ``),
 }
 
-console.log("Loaded environment variables",environment)
-
-
 module.exports = environment
