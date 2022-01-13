@@ -1,8 +1,8 @@
 const https = require('https'); // or 'https' for https:// URLs
-const {createWriteStream, unlink } = require('fs')
+const {createWriteStream, fstat } = require('fs')
 const { resolve, parse } = require('path')
 const {file_exists,write_image_data_to_file} = require('./helpers.js')
-const { readFile } = require('fs/promises')
+const { readFile, unlink } = require('fs/promises')
 
 const { scrapePackage } = require('./package-scraper/scrapePackage.js')
 const bot = require('./discord-bot/bot.js')
@@ -55,6 +55,15 @@ async function main() {
             attachment_id:attachment.id
         }
         let mod_info = await parse_mod_info(attachment.path)
+        if(!mod_info){
+            console.log(`UNABLE TO PARSE MOD`,attachment)
+            try{
+                await unlink(attachment.path)
+            }catch(e){
+                console.log(`unable to delete mod which could not be parsed, maybe a fs error?`)
+            }
+            continue
+        }
         console.log(mod_info)
         //save images from mod_info to disk for previewing
         if(mod_info.detail.icon){
@@ -88,7 +97,13 @@ function download(url, destination_file) {
 };
 
 async function parse_mod_info(package_path){
-    let data = await readFile(package_path)
-    let mod_info  = await scrapePackage(data)
-    return mod_info
+    try{
+        let data = await readFile(package_path)
+        let mod_info  = await scrapePackage(data)
+        return mod_info
+    }catch(e){
+        console.log(`error parsing mod `,package_path)
+        console.log(e)
+        return null
+    }
 }

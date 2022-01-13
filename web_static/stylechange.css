@@ -93,9 +93,14 @@ p{
     padding-right:2px;
 }
 
-/* navicust block */
+/* navicust node */
 .ncp_block{
     background-color:rgba(0, 0, 0, 0.198);
+}
+
+/* na */
+.encounter_node{
+    background-color:rgba(255, 0, 0, 0.26);
 }
 
 /* card class backgrounds */

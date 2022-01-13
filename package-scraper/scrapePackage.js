@@ -22,18 +22,28 @@ async function load_zip_and_luafiles(zip) {
       preloaded_lua_files[file.name] = {
         relativePath:relativePath,
         directory:directory,
-        preloaded_text:preloaded_text
+        preloaded_text:preloaded_text,
+        fileName:file.name
       }
       console.log(`loaded lua file ${relativePath}`)
     }
   }
 }
 
-function update_path_and_run_lua(lua,preloaded_lua){
+function update_path_and_run_lua(lua,preloaded_lua,is_entry){
   current_path = preloaded_lua.directory
-  let modded_text = `local _folderpath = "${current_path}"\n${preloaded_lua.preloaded_text}`
-  console.log(modded_text)
-  return lua.doStringSync(modded_text)
+  let modded_text = `_export = (function()\nlocal _folderpath = "${current_path}"\n${preloaded_lua.preloaded_text}\nend)()\n`
+  if(is_entry){
+    modded_text = `local _folderpath = "${current_path}"\n${preloaded_lua.preloaded_text}`
+  }
+  console.log(`running lua ${preloaded_lua.fileName}`)
+  console.log(`setting _folderpath to ${current_path}`)
+  //console.log(modded_text)
+  lua.doStringSync(modded_text)
+  let result = lua.global.get("_export")
+  console.log(`finished running lua ${preloaded_lua.fileName}`)
+  console.log(`result=`,result)
+  return result
 }
 
 // can "throw", make sure to .catch()/try catch
@@ -194,7 +204,7 @@ async function getPackageInfo(entry_file) {
     };
 
     // load
-    update_path_and_run_lua(lua,entry_file)
+    update_path_and_run_lua(lua,entry_file,true)
 
     // call package_* functions
     const package_requires_scripts = lua.global.get("package_requires_scripts");
@@ -218,21 +228,27 @@ async function getPackageInfo(entry_file) {
 }
 
 function implementSupportingAPI(lua,packageInfo) {
-  lua.global.set("_modpath", "");
-  lua.global.set("_folderpath", "");
+  lua.global.set("_modpath", "./");
+  lua.global.set("_folderpath", "./");
+
+  lua.global.set("make_frame_data",()=>{
+    return {}
+  })
 
   lua.global.set("include",(include_path)=>{
     if(include_path[0] == "/"){
       include_path = include_path.substr(1,include_path.length)
     }
     console.log('lua tried including',include_path)
-    let file = preloaded_lua_files[include_path]
+    include_path = normalizePath(`${current_path}/${include_path}`)
+    console.log('path normalized to',include_path)
+    file = preloaded_lua_files[include_path]
+    
     if(!file){
-      include_path = normalizePath(`${current_path}/${include_path}`)
-      file = preloaded_lua_files[include_path]
+      throw(`unable to find lua in zip at path ${include_path}`)
     }
     console.log(`running lua from zip path ${include_path}`)
-    return update_path_and_run_lua(lua,file)
+    return update_path_and_run_lua(lua,file,false)
   })
 
   lua.global.set("Engine", {

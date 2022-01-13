@@ -200,11 +200,15 @@ class EncounterNode extends ModNode{
     }
     update(latest_mod_data){
         super.update(latest_mod_data)
+
+        this.element.classList.add("encounter")
+
         if(!this.encounter_preview){
             this.encounter_preview = document.createElement('img')
             this.encounter_preview.classList.add("encounter_preview")
             this.preview_window.appendChild(this.encounter_preview)
         }
+        this.element.classList.add("encounter_node")
         this.encounter_preview.src = this.preview_link
     }
 }
