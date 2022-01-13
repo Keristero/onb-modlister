@@ -35,17 +35,18 @@ class Modlist{
 
             if(existing_mod_author != mod_author){
                 //dont replace an existing mod with a mod from another author
-                return
+                return false
             }
 
             if(existing_mod_timestamp < mod_timestamp){
                 //dont replace an existing mod with an older mod (based on message date)
-                return
+                return false
             }
         }
 
         this.modlist[mod_id] = new_mod
         await save_to_json(modlist_json_path,this.modlist)
+        return true
     }
 }
 

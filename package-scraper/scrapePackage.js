@@ -7,7 +7,7 @@ const banned_libs = ['io','os','coroutine','string','utf8','debug','package']
 
 const luaFactory = new LuaFactory();
 
-const preloaded_lua_files = {}
+let preloaded_lua_files = {}
 let current_path = ""
 
 async function load_zip_and_luafiles(zip) {
@@ -42,12 +42,13 @@ function update_path_and_run_lua(lua,preloaded_lua,is_entry){
   lua.doStringSync(modded_text)
   let result = lua.global.get("_export")
   console.log(`finished running lua ${preloaded_lua.fileName}`)
-  console.log(`result=`,result)
   return result
 }
 
 // can "throw", make sure to .catch()/try catch
 async function scrapePackage(zipFile) {
+  preloaded_lua_files = {}
+  current_path = ""
   const zip = await JSZip.loadAsync(zipFile);
   await load_zip_and_luafiles(zip)
 

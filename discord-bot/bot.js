@@ -7,7 +7,7 @@ class Discordbot extends EventEmitter{
         super()
         this.token = token
         this.channel_id = channel
-        this.client = new Client({ intents: [Intents.FLAGS.GUILDS] });
+        this.client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS] });
         this.client.on('ready', () => {
             console.log(`Logged in as ${this.client.user.tag}!`);
             this.emit('ready')
@@ -16,6 +16,15 @@ class Discordbot extends EventEmitter{
             if (!interaction.isCommand()) return;
         });
         this.client.login(DISCORD_TOKEN);
+    }
+    async react_to_attachment_message(attachment,emoji){
+        console.log(`reacting to attachement message with `,emoji)
+        const channel = await this.client.channels.fetch(this.channel_id)
+        const thread = await channel.threads.fetch(attachment.thread_id)
+        const message = await thread.messages.fetch(attachment.message_id)
+        message.reactions.removeAll()
+        message.react(emoji);
+        console.log(`reacted with`,emoji)
     }
     async poll_active_thread_attachments(every_x_seconds){
         const channel = await this.client.channels.fetch(this.channel_id)
@@ -73,6 +82,8 @@ class Discordbot extends EventEmitter{
                         attachment.timestamp = message.createdTimestamp
                         attachment.author_name = message.author.username
                         attachment.author_id = message.author.id
+                        attachment.message_id = message.id
+                        attachment.thread_id = thread.id
                         attachments.push(attachment)
                     })
                 })

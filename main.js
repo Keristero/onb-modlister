@@ -14,11 +14,10 @@ bot.on('ready', () => {
     main()
 })
 
-
 async function main(){
     await refresh_all_mods()
 
-    await bot.poll_active_thread_attachments(10)
+    await bot.poll_active_thread_attachments(60)
 
     bot.on('active_thread_attachments', async(attachments) => {
         let new_attachments = await download_new_attachments(attachments)
@@ -50,7 +49,6 @@ async function download_new_attachments(attachments){
         attachment.path = resolve(`./mods/${attachment.id}.zip`)
         let already_downloaded = await file_exists(attachment.path)
         if (already_downloaded) {
-            console.log(`already downloaded ${attachment.name}`)
             continue
         }
         console.log(`started downloading ${attachment.name}`)
@@ -83,6 +81,7 @@ async function parse_attachments(attachments){
             }catch(e){
                 console.log(`unable to delete mod which could not be parsed, maybe a fs error?`)
             }
+            await bot.react_to_attachment_message(attachment,'❌')
             continue
         }
         console.log(mod_info)
@@ -96,7 +95,10 @@ async function parse_attachments(attachments){
             mod_info.detail.preview = image_path
         }
         
-        await modlist.add_mod(mod_info,attachment_metadata)
+        let added_mod = await modlist.add_mod(mod_info,attachment_metadata)
+        if(added_mod){
+            await bot.react_to_attachment_message(attachment,'✅')
+        }
     }
 }
 
