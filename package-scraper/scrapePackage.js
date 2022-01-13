@@ -17,7 +17,7 @@ async function load_zip_and_luafiles(zip) {
     console.log("iterating over", relativePath);
     if (file.name.match(/.lua$/gmi)) {
       //attach dirname, and preloaded text to the file object for later
-      let directory = dirname(relativePath)
+      let directory = `${dirname(relativePath)}/`
       let preloaded_text = await zip.file(relativePath).async("string")
       preloaded_lua_files[file.name] = {
         relativePath:relativePath,
@@ -32,9 +32,9 @@ async function load_zip_and_luafiles(zip) {
 
 function update_path_and_run_lua(lua,preloaded_lua,is_entry){
   current_path = preloaded_lua.directory
-  let modded_text = `_export = (function()\nlocal _folderpath = "${current_path}"\n${preloaded_lua.preloaded_text}\nend)()\n`
+  let modded_text = `_export = (function()\nlocal _folderpath = "${current_path}"\nlocal function include(path)\nreturn _ENV.include(_folderpath..path)\nend\n${preloaded_lua.preloaded_text}\nend)()\n`
   if(is_entry){
-    modded_text = `local _folderpath = "${current_path}"\n${preloaded_lua.preloaded_text}`
+    modded_text = `local _folderpath = "${current_path}"\nlocal function include(path)\nreturn _ENV.include(_folderpath..path)\nend\n${preloaded_lua.preloaded_text}`
   }
   console.log(`running lua ${preloaded_lua.fileName}`)
   console.log(`setting _folderpath to ${current_path}`)
@@ -240,7 +240,7 @@ function implementSupportingAPI(lua,packageInfo) {
       include_path = include_path.substr(1,include_path.length)
     }
     console.log('lua tried including',include_path)
-    include_path = normalizePath(`${current_path}/${include_path}`)
+    include_path = normalizePath(include_path)
     console.log('path normalized to',include_path)
     file = preloaded_lua_files[include_path]
     
