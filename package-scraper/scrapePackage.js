@@ -2,7 +2,7 @@ const JSZip = require("jszip");
 const { LuaFactory } = require("wasmoon");
 const { normalize: normalizePath ,dirname} = require("path");
 
-const max_memory = 100000
+const max_memory = 200000
 const banned_libs = ['io','os','coroutine','string','utf8','debug','package']
 
 const luaFactory = new LuaFactory();

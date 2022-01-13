@@ -1,5 +1,5 @@
 const { DISCORD_TOKEN, MODS_CHANNEL_ID } = require('../environment')
-const { Client, Intents, CommandInteractionOptionResolver } = require('discord.js');
+const { Client, Intents, CommandInteractionOptionResolver, Collection} = require('discord.js');
 const EventEmitter = require('events');
 
 class Discordbot extends EventEmitter{
@@ -25,9 +25,24 @@ class Discordbot extends EventEmitter{
         return new Promise(async (resolve, reject) => {
             const channel = await this.client.channels.fetch(this.channel_id)
             //fetch all threads from channel, active and inactive
-            const fetched_threads = await channel.threads.fetchActive()
-            const fetched_archived_threads = await channel.threads.fetchArchived()
-            const threads = fetched_threads.threads.concat(fetched_archived_threads.threads)
+            let fetched_active_threads = await channel.threads.fetchActive({limit:9999})
+            let threads = fetched_active_threads.threads
+            
+            while(fetched_active_threads.hasMore){
+                let options = {before:fetched_active_threads.threads.last()}
+                fetched_active_threads = await channel.threads.fetchActive(options)
+                threads = threads.concat(fetched_active_threads.threads)
+            }
+            
+            let fetched_archived_threads = await channel.threads.fetchArchived()
+            threads = threads.concat(fetched_archived_threads.threads)
+
+            while(fetched_archived_threads.hasMore){
+                let options = {before:fetched_archived_threads.threads.last()}
+                fetched_archived_threads = await channel.threads.fetchArchived(options)
+                threads = threads.concat(fetched_archived_threads.threads)
+            }
+            console.log('fetched',threads.size,'threads')
 
             let attachments = []
             let thread_promises = []
