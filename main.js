@@ -76,11 +76,6 @@ async function parse_attachments(attachments){
         let mod_info = await parse_mod_info(attachment.path)
         if(!mod_info){
             console.log(`UNABLE TO PARSE MOD`,attachment)
-            try{
-                await unlink(attachment.path)
-            }catch(e){
-                console.log(`unable to delete mod which could not be parsed, maybe a fs error?`)
-            }
             await bot.react_to_attachment_message(attachment,'❌')
             continue
         }
