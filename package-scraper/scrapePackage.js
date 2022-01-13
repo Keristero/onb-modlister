@@ -1,6 +1,6 @@
 const JSZip = require("jszip");
 const { LuaFactory } = require("wasmoon");
-const { normalize: normalizePath ,dirname} = require("path");
+const { normalize: normalizePath ,dirname, normalize} = require("path");
 
 const max_memory = 200000
 const banned_libs = ['io','os','coroutine','string','utf8','debug','package']
@@ -19,11 +19,12 @@ async function load_zip_and_luafiles(zip) {
       //attach dirname, and preloaded text to the file object for later
       let directory = `${dirname(relativePath)}/`
       let preloaded_text = await zip.file(relativePath).async("string")
-      preloaded_lua_files[file.name] = {
+      let normalized_name = normalize(file.name)
+      preloaded_lua_files[normalized_name] = {
         relativePath:relativePath,
         directory:directory,
         preloaded_text:preloaded_text,
-        fileName:file.name
+        fileName:normalized_name
       }
       console.log(`loaded lua file ${relativePath}`)
     }

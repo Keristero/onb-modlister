@@ -11,5 +11,5 @@ app.get('/mod_list', function (req, res) {
     res.end(JSON.stringify(modlist.get_all()));
 })
 
-app.listen(3000)
-console.log(`webserver hosted on http://localhost:3000`)
+app.listen(80)
+console.log(`webserver hosted on http://localhost:80`)

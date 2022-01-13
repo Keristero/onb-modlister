@@ -18,13 +18,21 @@ class Discordbot extends EventEmitter{
         this.client.login(DISCORD_TOKEN);
     }
     async react_to_attachment_message(attachment,emoji){
-        console.log(`reacting to attachement message with `,emoji)
-        const channel = await this.client.channels.fetch(this.channel_id)
-        const thread = await channel.threads.fetch(attachment.thread_id)
-        const message = await thread.messages.fetch(attachment.message_id)
-        message.reactions.removeAll()
-        message.react(emoji);
-        console.log(`reacted with`,emoji)
+        try{
+            console.log(`reacting to attachement message with `,emoji)
+            const channel = await this.client.channels.fetch(this.channel_id)
+            const thread = await channel.threads.fetch(attachment.thread_id)
+            if(thread.archived){
+                console.log(`thread is archived, skipping reaction`)
+                return
+            }
+            const message = await thread.messages.fetch(attachment.message_id)
+            message.reactions.removeAll()
+            message.react(emoji);
+            console.log(`reacted with`,emoji)
+        }catch(e){
+            console.log(`unable to react to message`,emoji,e)
+        }
     }
     async poll_active_thread_attachments(every_x_seconds){
         const channel = await this.client.channels.fetch(this.channel_id)
