@@ -14,14 +14,32 @@ bot.on('ready', () => {
     main()
 })
 
-async function main() {
+
+async function main(){
+    await refresh_all_mods()
+
+    await bot.poll_active_thread_attachments(10)
+
+    bot.on('active_thread_attachments', async(attachments) => {
+        let new_attachments = await download_new_attachments(attachments)
+        await parse_attachments(new_attachments)
+    })
+}
+
+async function refresh_all_mods() {
     //load existing list of mods from json file
     await mod_list.load_modlist()
 
     //get a list of all attachements in the mods channel
-    let attachments = await bot.get_all_attachments_in_channel()
+    let all_attachments = await bot.get_all_attachments_in_channel()
     console.log(`got list of all attachments`)
+    let new_attachments = await download_new_attachments(all_attachments)
 
+    //iterate over each attachement and download it if we have not already got a copy in /mods
+    await parse_attachments(new_attachments)
+}
+
+async function download_new_attachments(attachments){
     //iterate over each attachement and download it if we have not already got a copy in /mods
     let new_attachments = []
     for (let attachment of attachments) {
@@ -41,9 +59,12 @@ async function main() {
         //add any newly downloaded attachments to a list for parsing
         new_attachments.push(attachment)
     }
+    return new_attachments
+}
 
+async function parse_attachments(attachments){
     //parse each new attachement and add them to the modlist
-    for(let attachment of new_attachments){
+    for(let attachment of attachments){
         console.log('attachement',attachment)
         let attachment_metadata = {
             timestamp:attachment.timestamp,
@@ -77,8 +98,6 @@ async function main() {
         
         await modlist.add_mod(mod_info,attachment_metadata)
     }
-
-
 }
 
 function download(url, destination_file) {

@@ -14,36 +14,54 @@ class Discordbot extends EventEmitter{
         });
         this.client.on('interactionCreate', async interaction => {
             if (!interaction.isCommand()) return;
-        
-            if (interaction.commandName === 'ping') {
-                await interaction.reply('Pong!');
-            }
         });
         this.client.login(DISCORD_TOKEN);
     }
-    get_all_attachments_in_channel(){
-        return new Promise(async (resolve, reject) => {
-            const channel = await this.client.channels.fetch(this.channel_id)
-            //fetch all threads from channel, active and inactive
-            let fetched_active_threads = await channel.threads.fetchActive({limit:9999})
-            let threads = fetched_active_threads.threads
-            
-            while(fetched_active_threads.hasMore){
-                let options = {before:fetched_active_threads.threads.last()}
-                fetched_active_threads = await channel.threads.fetchActive(options)
-                threads = threads.concat(fetched_active_threads.threads)
+    async poll_active_thread_attachments(every_x_seconds){
+        const channel = await this.client.channels.fetch(this.channel_id)
+        setInterval(async()=>{
+            console.log('scanning active threads for new attachments...')
+            let threads = await this.get_all_active_threads(channel)
+            let attachments = await this.get_all_attachments_from_list_of_threads(threads)
+            if(attachments.length > 0){
+                this.emit('active_thread_attachments',attachments)
             }
-            
-            let fetched_archived_threads = await channel.threads.fetchArchived()
+        },every_x_seconds*1000)
+    }
+    async get_all_active_threads(channel){
+        let fetched_active_threads = await channel.threads.fetchActive()
+        let threads = fetched_active_threads.threads
+        
+        while(fetched_active_threads.hasMore){
+            let options = {before:fetched_active_threads.threads.last()}
+            fetched_active_threads = await channel.threads.fetchActive(options)
+            threads = threads.concat(fetched_active_threads.threads)
+        }
+        return threads
+    }
+    async get_all_archived_threads(channel){
+        let fetched_archived_threads = await channel.threads.fetchArchived()
+        let threads = fetched_archived_threads.threads
+        
+        while(fetched_archived_threads.hasMore){
+            let options = {before:fetched_archived_threads.threads.last()}
+            fetched_archived_threads = await channel.threads.fetchArchived(options)
             threads = threads.concat(fetched_archived_threads.threads)
-
-            while(fetched_archived_threads.hasMore){
-                let options = {before:fetched_archived_threads.threads.last()}
-                fetched_archived_threads = await channel.threads.fetchArchived(options)
-                threads = threads.concat(fetched_archived_threads.threads)
-            }
-            console.log('fetched',threads.size,'threads')
-
+        }
+        return threads
+    }
+    async get_all_attachments_in_channel(){
+        const channel = await this.client.channels.fetch(this.channel_id)
+        //fetch all threads from channel, active and inactive
+        let threads = await this.get_all_active_threads(channel)
+        let archived_threads = await this.get_all_archived_threads(channel)
+        threads = threads.concat(archived_threads)
+        console.log('fetched',threads.size,'threads')
+        let attachments = await this.get_all_attachments_from_list_of_threads(threads)
+        return attachments
+    }
+    get_all_attachments_from_list_of_threads(threads){
+        return new Promise(async(resolve)=>{
             let attachments = []
             let thread_promises = []
             threads.forEach(async (thread) => {
@@ -60,6 +78,7 @@ class Discordbot extends EventEmitter{
                 })
             })
             await Promise.all(thread_promises)
+            console.log(`got ${attachments.length} attachments`)
             resolve(attachments)
         })
     }
