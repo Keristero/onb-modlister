@@ -1,13 +1,17 @@
 const { ThreadChannel } = require('discord.js')
-const {open_json,save_to_json,sanitize_string} = require('./helpers.js')
+const {open_json,save_to_json,sanitize_string,AsyncLock} = require('./helpers.js')
 const modlist_json_path = `./modlist.json`
 
+const json_lock = new AsyncLock()
 class Modlist{
     constructor(){
         this.has_changed_since_last_get_all = true
     }
     async load_modlist(){
+        await json_lock.promise
+        json_lock.enable()
         this.modlist = await open_json(modlist_json_path)
+        json_lock.disable()
         this.has_changed_since_last_get_all = true
     }
     get_mod_by_id(mod_id){
@@ -19,6 +23,28 @@ class Modlist{
     get_all(){
         this.has_changed_since_last_get_all = false
         return this.modlist
+    }
+    async save_modlist(){
+        await json_lock.promise
+        json_lock.enable()
+        await save_to_json(modlist_json_path,this.modlist)
+        json_lock.disable()
+    }
+    async get_mod_by_attachment_id(attachment_id){
+        for(let sanitized_package_id in this.modlist){
+            let mod = this.modlist[sanitized_package_id]
+            if(mod.attachement_data.attachment_id == attachment_id){
+                return mod
+            }
+        }
+    }
+    async remove_mod_by_attachment_id(attachment_id){
+        let mod = await this.get_mod_by_attachment_id(attachment_id)
+        if(!mod){
+            return
+        }
+        delete this.modlist[sanitize_string(mod.data.id)]
+        await this.save_modlist()
     }
     async add_mod(mod_info,attachment_metadata){
         let new_mod = {
@@ -48,7 +74,7 @@ class Modlist{
         }
 
         this.modlist[mod_id] = new_mod
-        await save_to_json(modlist_json_path,this.modlist)
+        await this.save_modlist()
         this.has_changed_since_last_get_all = true
         return true
     }

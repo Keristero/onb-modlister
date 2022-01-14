@@ -1,8 +1,8 @@
 const https = require('https'); // or 'https' for https:// URLs
-const {createWriteStream, fstat } = require('fs')
-const { resolve, parse } = require('path')
-const {file_exists,write_image_data_to_file} = require('./helpers.js')
-const { readFile, unlink } = require('fs/promises')
+const { createWriteStream, fstat } = require('fs')
+const { resolve, parse, join } = require('path')
+const { file_exists, write_image_data_to_file } = require('./helpers.js')
+const { readFile, unlink, readdir } = require('fs/promises')
 
 const { scrapePackage } = require('./package-scraper/scrapePackage.js')
 const bot = require('./discord-bot/bot.js')
@@ -10,16 +10,21 @@ const mod_list = require('./modlist.js');
 const modlist = require('./modlist.js');
 const webserver = require('./webserver.js')
 
+const mods_path = "mods/"
+const good_mod_emoji = "✅"
+const bad_mod_emoji = "❌"
+const remove_mod_emoji = "🚪"
+
 bot.on('ready', () => {
     main()
 })
 
-async function main(){
+async function main() {
     await refresh_all_mods()
 
     await bot.poll_active_thread_attachments(60)
 
-    bot.on('active_thread_attachments', async(attachments) => {
+    bot.on('active_thread_attachments', async (attachments) => {
         let new_attachments = await download_new_attachments(attachments)
         await parse_attachments(new_attachments)
     })
@@ -36,17 +41,63 @@ async function refresh_all_mods() {
 
     //iterate over each attachement and download it if we have not already got a copy in /mods
     await parse_attachments(new_attachments)
+
+    await delete_mods_with_removed_attachments(all_attachments)
 }
 
-async function download_new_attachments(attachments){
+async function delete_mods_with_removed_attachments(all_attachments){
+    let attachments_to_delete = await list_attachments_to_be_deleted(all_attachments)
+    console.log('attachments to delete',attachments_to_delete)
+    for(let attachment_id of attachments_to_delete){
+        await modlist.remove_mod_by_attachment_id(attachment_id)
+        await unlink(resolve(`${mods_path}/${attachment_id}.zip`))
+    }
+    console.log('deleted mods',attachments_to_delete)
+}
+
+async function list_attachments_to_be_deleted(attachment_list) {
+    console.log(attachment_list)
+    try{
+        const mods_path_files = await readdir(mods_path);
+
+        //filter out any non zip files
+        const cached_mods = mods_path_files.filter((file_name)=>{
+            if(file_name.includes(".zip")){
+                return true
+            }
+            return false
+        })
+
+        //filter out all mods that appear in the attachment list
+        const deleted_mods = cached_mods.filter((file_name)=>{
+            for(attachment of attachment_list){
+                if(file_name.includes(attachment.id)){
+                    return false
+                }
+            }
+            return true
+        })
+
+        //remove .zip from the path to get the attachment id
+        const deleted_attachments = deleted_mods.map((value)=>{
+            return value.split('.')[0]
+        })
+
+        return deleted_attachments
+    } catch(err) {
+        console.error(err);
+    }
+}
+
+async function download_new_attachments(attachments) {
     //iterate over each attachement and download it if we have not already got a copy in /mods
     let new_attachments = []
     for (let attachment of attachments) {
-        if (attachment.contentType != 'application/zip'){
+        if (attachment.contentType != 'application/zip') {
             //skip non zip attachments
             continue
         }
-        attachment.path = resolve(`./mods/${attachment.id}.zip`)
+        attachment.path = resolve(`${join(mods_path, attachment.id)}.zip`)
         let already_downloaded = await file_exists(attachment.path)
         if (already_downloaded) {
             continue
@@ -60,39 +111,39 @@ async function download_new_attachments(attachments){
     return new_attachments
 }
 
-async function parse_attachments(attachments){
+async function parse_attachments(attachments) {
     //parse each new attachement and add them to the modlist
-    for(let attachment of attachments){
-        console.log('attachement',attachment)
+    for (let attachment of attachments) {
+        console.log('attachement', attachment)
         let attachment_metadata = {
-            timestamp:attachment.timestamp,
-            modlister_file_path:attachment.path,
-            discord_url:attachment.attachment,
+            timestamp: attachment.timestamp,
+            modlister_file_path: attachment.path,
+            discord_url: attachment.attachment,
             author_name: attachment.author_name,
             author_id: attachment.author_id,
-            original_filename:attachment.name,
-            attachment_id:attachment.id
+            original_filename: attachment.name,
+            attachment_id: attachment.id
         }
         let mod_info = await parse_mod_info(attachment.path)
-        if(!mod_info){
-            console.log(`UNABLE TO PARSE MOD`,attachment)
-            await bot.react_to_attachment_message(attachment,'❌')
+        if (!mod_info) {
+            console.log(`UNABLE TO PARSE MOD`, attachment)
+            await bot.react_to_attachment_message(attachment, bad_mod_emoji)
             continue
         }
         console.log(mod_info)
         //save images from mod_info to disk for previewing
-        if(mod_info.detail.icon){
-            let image_path = await write_image_data_to_file(`./images`,`${mod_info.id}_icon`,'png',mod_info.detail.icon)
+        if (mod_info.detail.icon) {
+            let image_path = await write_image_data_to_file(`./images`, `${mod_info.id}_icon`, 'png', mod_info.detail.icon)
             mod_info.detail.icon = image_path
         }
-        if(mod_info.detail.preview){
-            let image_path = await write_image_data_to_file(`./images`,`${mod_info.id}_preview`,'png',mod_info.detail.preview)
+        if (mod_info.detail.preview) {
+            let image_path = await write_image_data_to_file(`./images`, `${mod_info.id}_preview`, 'png', mod_info.detail.preview)
             mod_info.detail.preview = image_path
         }
-        
-        let added_mod = await modlist.add_mod(mod_info,attachment_metadata)
-        if(added_mod){
-            await bot.react_to_attachment_message(attachment,'✅')
+
+        let added_mod = await modlist.add_mod(mod_info, attachment_metadata)
+        if (added_mod) {
+            await bot.react_to_attachment_message(attachment, good_mod_emoji)
         }
     }
 }
@@ -112,13 +163,13 @@ function download(url, destination_file) {
     })
 };
 
-async function parse_mod_info(package_path){
-    try{
+async function parse_mod_info(package_path) {
+    try {
         let data = await readFile(package_path)
-        let mod_info  = await scrapePackage(data)
+        let mod_info = await scrapePackage(data)
         return mod_info
-    }catch(e){
-        console.log(`error parsing mod `,package_path)
+    } catch (e) {
+        console.log(`error parsing mod `, package_path)
         console.log(e)
         return null
     }

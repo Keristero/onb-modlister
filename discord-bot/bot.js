@@ -17,16 +17,37 @@ class Discordbot extends EventEmitter{
         });
         this.client.login(DISCORD_TOKEN);
     }
-    async react_to_attachment_message(attachment,emoji){
+    async get_attachment_thread(attachment){
         try{
-            console.log(`reacting to attachement message with `,emoji)
             const channel = await this.client.channels.fetch(this.channel_id)
             const thread = await channel.threads.fetch(attachment.thread_id)
-            if(thread.archived){
-                console.log(`thread is archived, skipping reaction`)
+            return thread
+        }catch(e){
+            console.log(`unable to get thread from attachment`,e)
+            return null
+        }
+    }
+    async get_attachment_message(attachment){
+        try{
+            const thread = await this.get_attachment_thread(attachment)
+            const message = await thread.messages.fetch(attachment.message_id)
+            return message
+        }catch(e){
+            console.log(`unable to get message from attachment`,e)
+            return null
+        }
+    }
+    async react_to_attachment_message(attachment,emoji){
+        try{
+            const thread = await this.get_attachment_thread(attachment)
+            if (!thread || thread.archived){
                 return
             }
-            const message = await thread.messages.fetch(attachment.message_id)
+            const message = await this.get_attachment_message(attachment)
+            if(!message){
+                return
+            }
+            console.log(`reacting to message with`,emoji)
             message.reactions.removeAll()
             message.react(emoji);
             console.log(`reacted with`,emoji)
