@@ -13,16 +13,19 @@ const webserver = require('./webserver.js')
 const mods_path = "mods/"
 const good_mod_emoji = "✅"
 const bad_mod_emoji = "❌"
-const remove_mod_emoji = "🚪"
+const wrong_author_emoji = "🔒"
 
 bot.on('ready', () => {
     main()
 })
 
 async function main() {
+    //load existing list of mods from json file
+    await mod_list.load_modlist()
     await refresh_all_mods()
 
-    await bot.poll_active_thread_attachments(60)
+    remove_old_mods_regularly(60*60)//every hour
+    await bot.poll_active_thread_attachments(60)//every minute
 
     bot.on('active_thread_attachments', async (attachments) => {
         let new_attachments = await download_new_attachments(attachments)
@@ -30,10 +33,18 @@ async function main() {
     })
 }
 
-async function refresh_all_mods() {
-    //load existing list of mods from json file
-    await mod_list.load_modlist()
+function remove_old_mods_regularly(every_x_seconds){
+    setInterval(async()=>{
+        try{
+            console.log('comparing cached mods against all attachments...')
+            await remove_any_old_mods()
+        }catch(e){
+            console.log('poll failed',e)
+        }
+    },every_x_seconds*1000)
+}
 
+async function refresh_all_mods() {
     //get a list of all attachements in the mods channel
     let all_attachments = await bot.get_all_attachments_in_channel()
     console.log(`got list of all attachments`)
@@ -42,10 +53,15 @@ async function refresh_all_mods() {
     //iterate over each attachement and download it if we have not already got a copy in /mods
     await parse_attachments(new_attachments)
 
-    await delete_mods_with_removed_attachments(all_attachments)
+    await remove_mods_not_in_attachment_list(all_attachments)
 }
 
-async function delete_mods_with_removed_attachments(all_attachments){
+async function remove_any_old_mods(){
+    let all_attachments = await bot.get_all_attachments_in_channel()
+    await remove_mods_not_in_attachment_list(all_attachments)
+}
+
+async function remove_mods_not_in_attachment_list(all_attachments){
     let attachments_to_delete = await list_attachments_to_be_deleted(all_attachments)
     console.log('attachments to delete',attachments_to_delete)
     for(let attachment_id of attachments_to_delete){
@@ -141,9 +157,11 @@ async function parse_attachments(attachments) {
             mod_info.detail.preview = image_path
         }
 
-        let added_mod = await modlist.add_mod(mod_info, attachment_metadata)
-        if (added_mod) {
+        let status = await modlist.add_mod(mod_info, attachment_metadata)
+        if (status == 'added') {
             await bot.react_to_attachment_message(attachment, good_mod_emoji)
+        }else if(status == 'author') {
+            await bot.react_to_attachment_message(attachment, wrong_author_emoji)
         }
     }
 }

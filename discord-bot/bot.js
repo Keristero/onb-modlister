@@ -116,13 +116,35 @@ class Discordbot extends EventEmitter{
             console.log('failed to get attachments',e)
         }
     }
+    async get_all_messages_in_thread(thread) {
+        const sum_messages = [];
+        let last_id;
+        const options = {limit: 100};
+        while (true) {
+            if (last_id) {
+                options.before = last_id;
+            }
+            let messages = await thread.messages.fetch(options)
+            console.log(messages)
+            sum_messages.push(...messages.map((item)=>{return item}));
+            if(messages.last()){
+                last_id = messages.last().id;
+            }else{
+                break;
+            }
+            if (messages.size != 100) {
+                break;
+            }
+        }
+        return sum_messages;
+    }
     get_all_attachments_from_list_of_threads(threads){
         let thread_promises = []
         let attachments = []
         return new Promise(async(resolve)=>{
             try{
                 threads.forEach(async (thread) => {
-                    let thread_fetch = thread.messages.fetch()
+                    let thread_fetch = this.get_all_messages_in_thread(thread)
                     thread_promises.push(thread_fetch)
                     const messages = await thread_fetch
                     messages.forEach((message) => {

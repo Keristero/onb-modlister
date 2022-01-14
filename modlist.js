@@ -64,19 +64,19 @@ class Modlist{
 
             if(existing_mod_author != mod_author){
                 //dont replace an existing mod with a mod from another author
-                return false
+                return 'author'
             }
 
             if(existing_mod_timestamp < mod_timestamp){
                 //dont replace an existing mod with an older mod (based on message date)
-                return false
+                return 'old'
             }
         }
 
         this.modlist[mod_id] = new_mod
         await this.save_modlist()
         this.has_changed_since_last_get_all = true
-        return true
+        return 'added'
     }
 }
 
