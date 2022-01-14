@@ -4,9 +4,11 @@ const modlist_json_path = `./modlist.json`
 
 class Modlist{
     constructor(){
+        this.has_changed_since_last_get_all = true
     }
     async load_modlist(){
         this.modlist = await open_json(modlist_json_path)
+        this.has_changed_since_last_get_all = true
     }
     get_mod_by_id(mod_id){
         if(this.modlist[mod_id]){
@@ -15,6 +17,7 @@ class Modlist{
         return null
     }
     get_all(){
+        this.has_changed_since_last_get_all = false
         return this.modlist
     }
     async add_mod(mod_info,attachment_metadata){
@@ -46,6 +49,7 @@ class Modlist{
 
         this.modlist[mod_id] = new_mod
         await save_to_json(modlist_json_path,this.modlist)
+        this.has_changed_since_last_get_all = true
         return true
     }
 }
