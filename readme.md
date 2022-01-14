@@ -10,9 +10,9 @@
 1. display mods on webserver ✔️
 1. allow downloading of individual mods from webserver ✔️
 1. let users select multiple mods to download, send a .zip with the correct folder structure containing the selected mods
-1. watch the mods channel for new uploads and process them
+1. watch the mods channel for new uploads and process them  ✔️
 
 
 # potential features
 1. scan for bad code
-1. react to attachments in the mods channel with a "Yes" or "No" sentiment emoji to say if the mod was able to be listed
+1. react to attachments in the mods channel with a "Yes" or "No" sentiment emoji to say if the mod was able to be listed ✔️
