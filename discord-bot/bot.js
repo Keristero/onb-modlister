@@ -125,7 +125,6 @@ class Discordbot extends EventEmitter{
                 options.before = last_id;
             }
             let messages = await thread.messages.fetch(options)
-            console.log(messages)
             sum_messages.push(...messages.map((item)=>{return item}));
             if(messages.last()){
                 last_id = messages.last().id;

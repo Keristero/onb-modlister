@@ -67,7 +67,7 @@ class Modlist{
                 return 'author'
             }
 
-            if(existing_mod_timestamp < mod_timestamp){
+            if(existing_mod_timestamp > mod_timestamp){
                 //dont replace an existing mod with an older mod (based on message date)
                 return 'old'
             }

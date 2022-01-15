@@ -14,6 +14,7 @@ const mods_path = "mods/"
 const good_mod_emoji = "✅"
 const bad_mod_emoji = "❌"
 const wrong_author_emoji = "🔒"
+const archived_mod_emoji = "📁"
 
 bot.on('ready', () => {
     main()
@@ -72,7 +73,6 @@ async function remove_mods_not_in_attachment_list(all_attachments){
 }
 
 async function list_attachments_to_be_deleted(attachment_list) {
-    console.log(attachment_list)
     try{
         const mods_path_files = await readdir(mods_path);
 
@@ -162,6 +162,8 @@ async function parse_attachments(attachments) {
             await bot.react_to_attachment_message(attachment, good_mod_emoji)
         }else if(status == 'author') {
             await bot.react_to_attachment_message(attachment, wrong_author_emoji)
+        }else if(status == 'old'){
+            await bot.react_to_attachment_message(attachment, archived_mod_emoji)
         }
     }
 }
