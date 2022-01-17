@@ -41,12 +41,16 @@ class ModNode{
             type:String(this?.data?.data?.type),
             card_class:String(this.data.data.type == "card" ?
                 this.data.data.detail.props.card_class ?
-                    this.data.data.detail.props.card_class : "standard"
+                    this.data.data.detail.props.card_class : 
+                    "standard"
                 :null),
             id:String(this?.data?.data?.id),
-            card_code:this.data.data.detail.codes ? this.data.data.detail.codes.map((value)=>{
-                return String(value)
-            }) : "",
+            card_code:this.data.data.detail.codes ? 
+                this.data.data.detail.codes.map((value)=>{
+                return String(value)}) : "",
+            element:this?.data?.data?.detail?.props?.element ?
+                this?.data?.data?.detail?.props?.element : 
+                "None",
             author_name:String(this?.data?.attachement_data?.author_name)
         }
     }

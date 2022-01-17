@@ -11,6 +11,9 @@ const detail_filters = {
     id:{
         display_name:"Package ID",
     },
+    element:{
+        display_name:"Element",
+    },
     card_code:{
         display_name:"Card Code",
     },

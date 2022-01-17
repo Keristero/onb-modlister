@@ -40,6 +40,7 @@ function filter_mod_list(filter_id,filter_value){
         for(let filter_id of filter_ids){
             if(!should_node_be_hidden(mod_node,filter_id,filterRegexp)){
                 node_should_be_hidden = false
+                break
             }
         }
         mod_node.set_hidden(node_should_be_hidden)
@@ -49,7 +50,6 @@ function filter_mod_list(filter_id,filter_value){
     }
     //update filter title
     filter.p_name.textContent = `Filter (${matches}) results`
-
 }
 
 function should_node_be_hidden(mod_node,filter_id,regexp){
@@ -61,6 +61,7 @@ function should_node_be_hidden(mod_node,filter_id,regexp){
         for(let value of key_value){
             if(value.match(regexp)){
                 should_hide = false
+                break;
             }
         }
     }else if(key_value.match(regexp)){

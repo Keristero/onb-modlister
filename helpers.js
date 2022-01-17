@@ -1,6 +1,6 @@
 const { access } = require('fs/promises')
 const { constants } = require('fs')
-const { readFile, writeFile } = require('fs/promises')
+const { readFile, writeFile ,unlink} = require('fs/promises')
 const { join } = require('path')
 
 async function file_exists(file_path) {
@@ -29,6 +29,9 @@ function sanitize_string(input_string) {
 async function write_image_data_to_file(folder_path, file_name, extension, image_data) {
     let safe_filename = sanitize_string(file_name)
     let file_path = `${join(folder_path, safe_filename)}.${extension}`
+    if(await file_exists(file_path)){
+        await unlink(file_path)
+    }
     await writeFile(file_path, image_data)
     return file_path
 }
