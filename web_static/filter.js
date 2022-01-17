@@ -28,23 +28,20 @@ const detail_filters = {
 const sort_options={
     timestamp:{
         display_name:"Date",
-        sort:"high-low",
-        path:["attachement_data","timestamp"]
+        sort_func:function(a,b){
+            let mod_a = mod_nodes[a]
+            let mod_b = mod_nodes[b]
+            return mod_b.details.timestamp - mod_a.details.timestamp
+        },
     },
     damage:{
         display_name:"Damage",
-        sort:"high-low",
-        path:["data","detail","props","damage"]
+        sort_func:function(a,b){
+            let mod_a = mod_nodes[a]
+            let mod_b = mod_nodes[b]
+            return mod_b.details.damage - mod_a.details.damage
+        },
     },
-}
-
-const radio_groups={
-    type:{
-        title:"Mod Type",
-        path:["data","type"],
-        options:["Card","Encounter"],
-        option_values:["card","encounter"]
-    }
 }
 
 class ModsFilter{
@@ -97,6 +94,44 @@ class ModsFilter{
             let filter_id = this.select.value
             let filter_value = this.input.value
             this.filter_changed_callback(filter_id,filter_value)
+        }
+    }
+}
+
+class ModsSorter extends ModsFilter{
+    constructor(){
+        super()
+    }
+    selection_changed_callback(){
+        console.log('replace this')
+    }
+    update(){
+        if(!this.element){
+            this.element = document.createElement('div')
+            this.element.classList.add('filter')
+        }
+        if(!this.p_name){
+            this.p_name = document.createElement('p')
+            this.p_name.textContent = "Sort"
+            this.p_name.classList.add('name')
+            this.element.appendChild(this.p_name)
+        }
+        if(!this.select){
+            this.select = document.createElement('select')
+            this.element.appendChild(this.select)
+            
+            for(let field_name in sort_options){
+                let field = sort_options[field_name]
+                let option = document.createElement('option')
+                option.value = field_name
+                option.textContent = field.display_name
+                this.select.appendChild(option)
+            }
+
+            this.select.onchange = ()=>{
+                let select_value = this.select.value
+                this.selection_changed_callback(select_value)
+            }
         }
     }
 }

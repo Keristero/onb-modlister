@@ -12,19 +12,6 @@ function create_mod_node(mod_id,mod_data){
     }
 }
 
-function get_nested_value_from_object(object,keys_array){
-    let test_object = object
-    for(let key_name of keys_array){
-        if(test_object[key_name]){
-            test_object = test_object[key_name]
-        }else{
-            return null
-        }
-    }
-    return test_object
-}
-
-
 class ModNode{
     constructor(mod_id,mod_data){
         this.id = mod_id
@@ -34,8 +21,8 @@ class ModNode{
         this.cache_details()
     }
     cache_details(){
-        //cache details for detailed view and fast searching
-        //all values should be either arrays of strings, or strings
+        //cache details for detailed view and fast filtering and sorting
+        //all values used in filters should be strings or an array of strings,
         this.details = {
             name:String(this.name),
             type:String(this?.data?.data?.type),
@@ -51,7 +38,9 @@ class ModNode{
             element:this?.data?.data?.detail?.props?.element ?
                 this?.data?.data?.detail?.props?.element : 
                 "None",
-            author_name:String(this?.data?.attachement_data?.author_name)
+            author_name:String(this?.data?.attachement_data?.author_name),
+            timestamp:parseInt(this?.data?.attachement_data?.timestamp),
+            damage:this?.data?.data?.detail?.props?.damage ? parseInt(this?.data?.data?.detail?.props?.damage) : 0
         }
     }
     set_hidden(should_be_hidden){

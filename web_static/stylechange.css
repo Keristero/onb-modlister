@@ -32,7 +32,8 @@ select{
 }
 
 #filters {
-    display: block;
+    display: flex;
+    gap: 0px 10px;
     padding-bottom: 20px;
     width:fit-content;
 }

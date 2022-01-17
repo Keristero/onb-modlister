@@ -3,6 +3,7 @@ const div_filters = document.getElementById('filters')
 const mod_nodes = {}
 //filter_fields is defined in filter.js
 let filter = new ModsFilter()
+let sorter = new ModsSorter()
 
 main()
 
@@ -11,11 +12,30 @@ async function main() {
     filter.filter_changed_callback = (filter_id,filter_value)=>{
         filter_mod_list(filter_id,filter_value)
     }
+    div_filters.appendChild(sorter.get_html_element())
+    sorter.selection_changed_callback = (sorter_id)=>{
+        sort_mod_list(sorter_id)
+    }
 
     let mod_list = await get_mod_list()
     update_mod_nodes(mod_list, mod_nodes)
     render_mod_nodes(mod_nodes)
     filter_mod_list('any',"")
+}
+
+function sort_mod_list(sorter_id){
+    let sorter = sort_options[sorter_id]
+    let mod_node_keys = Object.keys(mod_nodes)
+    console.log(mod_node_keys)
+    mod_node_keys.sort(sorter.sort_func)
+    console.log(mod_node_keys)
+    let i = 1
+    for(let key of mod_node_keys){
+        let mod_node = mod_nodes[key]
+        mod_node.element.style.order = i
+        console.log(mod_node.details.damage)
+        i++
+    }
 }
 
 function filter_mod_list(filter_id,filter_value){
