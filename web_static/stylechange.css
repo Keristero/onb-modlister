@@ -2,14 +2,6 @@
 @font-face { font-family: BN6; src: url('/fonts/BN6FontThin.ttf'); }
 @font-face { font-family: BN6;font-weight: bold; src: url('/fonts/BN6FontBold.ttf'); }  
 
-/* test, remove later */
-img{
-    display:none;
-}
-canvas{
-    display: none;
-}
-
 /* main styles */
 
 body{
