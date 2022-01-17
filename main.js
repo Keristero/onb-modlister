@@ -133,7 +133,6 @@ async function parse_attachments(attachments) {
         console.log('attachement', attachment)
         let attachment_metadata = {
             timestamp: attachment.timestamp,
-            modlister_file_path: attachment.path,
             discord_url: attachment.attachment,
             author_name: attachment.author_name,
             author_id: attachment.author_id,

@@ -12,11 +12,52 @@ function create_mod_node(mod_id,mod_data){
     }
 }
 
+function get_nested_value_from_object(object,keys_array){
+    let test_object = object
+    for(let key_name of keys_array){
+        if(test_object[key_name]){
+            test_object = test_object[key_name]
+        }else{
+            return null
+        }
+    }
+    return test_object
+}
+
+
 class ModNode{
     constructor(mod_id,mod_data){
         this.id = mod_id
         this.data = mod_data
+        this.hidden = false
         this.create()
+        this.cache_details()
+    }
+    cache_details(){
+        //cache details for detailed view and fast searching
+        //all values should be either arrays of strings, or strings
+        this.details = {
+            name:String(this.name),
+            type:String(this?.data?.data?.type),
+            card_class:String(this.data.data.type == "card" ?
+                this.data.data.detail.props.card_class ?
+                    this.data.data.detail.props.card_class : "standard"
+                :null),
+            id:String(this?.data?.data?.id),
+            card_code:this.data.data.detail.codes ? this.data.data.detail.codes.map((value)=>{
+                return String(value)
+            }) : "",
+            author_name:String(this?.data?.attachement_data?.author_name)
+        }
+    }
+    set_hidden(should_be_hidden){
+        if(should_be_hidden && !this.hidden){
+            this.hidden = true
+            this.element.style.display = "none"
+        }else if(!should_be_hidden && this.hidden){
+            this.hidden = false
+            this.element.style.display = "block"
+        }
     }
     get_html_element(){
         return this.element

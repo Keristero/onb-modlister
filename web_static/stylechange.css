@@ -2,6 +2,14 @@
 @font-face { font-family: BN6; src: url('/fonts/BN6FontThin.ttf'); }
 @font-face { font-family: BN6;font-weight: bold; src: url('/fonts/BN6FontBold.ttf'); }  
 
+/* test, remove later */
+img{
+    display:none;
+}
+canvas{
+    display: none;
+}
+
 /* main styles */
 
 body{
@@ -18,6 +26,24 @@ p{
     padding:0;
     margin:0;
 }
+input{
+    margin:10px;
+    padding:2px;
+    font-family: BN6;
+    font-size:medium;
+}
+select{
+    margin:10px;
+    padding:2px;
+    font-family: BN6;
+    font-size:medium;
+}
+
+#filters {
+    display: block;
+    padding-bottom: 20px;
+    width:fit-content;
+}
 
 #mods {
     width: 100%;
@@ -25,6 +51,13 @@ p{
     flex-wrap: wrap;
     align-items: center;
     gap: 10px 10px;
+}
+
+.filter{
+    text-align: left;
+    background-color:rgba(255, 255, 255, 0.329);
+    overflow:hidden;
+    box-shadow: 2px 5px 10px rgba(0, 0, 0, 0.287);
 }
 
 .mod{
