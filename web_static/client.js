@@ -23,6 +23,7 @@ let mod_list = await get_mod_list()
 update_mod_nodes(mod_list, mod_nodes)
 render_mod_nodes(mod_nodes)
 filter_mod_list('any',"")
+sort_mod_list("timestamp")
 
 //create select all button
 let btn_select_all = document.createElement('button')
