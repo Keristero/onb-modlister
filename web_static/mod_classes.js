@@ -15,10 +15,33 @@ function create_mod_node(mod_id,mod_data){
 class ModNode{
     constructor(mod_id,mod_data){
         this.id = mod_id
+        this.folder = 'libs'
         this.data = mod_data
         this.hidden = false
+        this.selected = false
         this.create()
         this.cache_details()
+    }
+    selection_changed_callback(){
+        console.log('replace this')
+    }
+    set_selection(should_be_selected){
+        if(should_be_selected && !this.selected){
+            this.selected = true
+            this.element.classList.add('selected')
+            this.selection_changed_callback()
+        }else if(!should_be_selected && this.selected){
+            this.selected = false
+            this.element.classList.remove('selected')
+            this.selection_changed_callback()
+        }
+    }
+    clicked(){
+        if(!this.selected){
+            this.set_selection(true)
+        }else{
+            this.set_selection(false)
+        }
     }
     cache_details(){
         //cache details for detailed view and fast filtering and sorting
@@ -47,6 +70,7 @@ class ModNode{
         if(should_be_hidden && !this.hidden){
             this.hidden = true
             this.element.style.display = "none"
+            this.set_selection(false)
         }else if(!should_be_hidden && this.hidden){
             this.hidden = false
             this.element.style.display = "block"
@@ -62,6 +86,9 @@ class ModNode{
         this.data = latest_mod_data
         if(!this.element){
             this.element = document.createElement('div')
+            this.element.onclick = ()=>{
+                this.clicked()
+            }
         }
         //clear class list
         this.element.classList.remove(...this.element.classList);
@@ -135,6 +162,7 @@ class ModNode{
 class CardNode extends ModNode{
     constructor(mod_id,mod_data){
         super(mod_id,mod_data)
+        this.folder = 'cards'
     }
     update(latest_mod_data){
         super.update(latest_mod_data)
@@ -168,6 +196,7 @@ class CardNode extends ModNode{
 class PlayerNode extends ModNode{
     constructor(mod_id,mod_data){
         super(mod_id,mod_data)
+        this.folder = 'players'
     }
     update(latest_mod_data){
         super.update(latest_mod_data)
@@ -183,6 +212,7 @@ class PlayerNode extends ModNode{
 class BlockNode extends ModNode{
     constructor(mod_id,mod_data){
         super(mod_id,mod_data)
+        this.folder = 'blocks'
     }
     update(latest_mod_data){
         super.update(latest_mod_data)
@@ -231,6 +261,7 @@ class BlockNode extends ModNode{
 class EncounterNode extends ModNode{
     constructor(mod_id,mod_data){
         super(mod_id,mod_data)
+        this.folder = 'enemies'
     }
     update(latest_mod_data){
         super.update(latest_mod_data)

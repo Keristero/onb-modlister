@@ -32,6 +32,7 @@ select{
 }
 
 #filters {
+    width: 100%;
     display: flex;
     gap: 0px 10px;
     padding-bottom: 20px;
@@ -44,6 +45,16 @@ select{
     flex-wrap: wrap;
     align-items: center;
     gap: 10px 10px;
+}
+
+button{
+    text-align: center;
+    background-color:rgba(255, 255, 255, 0.329);
+    overflow:hidden;
+    box-shadow: 2px 5px 10px rgba(0, 0, 0, 0.287);
+    height:fit-content;
+    width:fit-content;
+    padding:10px;
 }
 
 .filter{
@@ -61,6 +72,11 @@ select{
     background-color:rgba(255, 255, 255, 0.329);
     overflow:hidden;
     box-shadow: 2px 5px 10px rgba(0, 0, 0, 0.287);
+}
+
+.selected{
+    color:blue;
+    box-shadow: 0px 0px 20px rgba(6, 2, 255, 0.863);
 }
 
 /* styles for properties of the mod nodes */

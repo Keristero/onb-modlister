@@ -3,15 +3,21 @@ const app = express()
 const modlist = require('./modlist.js')
 const {PORT} = require('./environment.js')
 
-const cache_static_options = {
+const cache_images_options = {
     etag: true,
     index: false,
     maxAge: '1d',
 }
 
+const cache_mods_options = {
+    etag: true,
+    index: false,
+    maxAge: '30m',
+}
+
 app.use(express.static('web_static'))
-app.use('/images', express.static('images',cache_static_options))
-app.use('/mods', express.static('mods',cache_static_options))
+app.use('/images', express.static('images',cache_images_options))
+app.use('/mods', express.static('mods',cache_mods_options))
 
 app.get('/mod_list', function (req, res) {
     res.setHeader('Content-Type', 'application/json');
