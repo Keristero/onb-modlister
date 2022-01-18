@@ -12,7 +12,7 @@ const cache_images_options = {
 const cache_mods_options = {
     etag: true,
     index: false,
-    maxAge: '30m',
+    maxAge: '30d',
 }
 
 app.use(express.static('web_static'))
