@@ -1,4 +1,3 @@
-const { ThreadChannel } = require('discord.js')
 const {open_json,save_to_json,sanitize_string,AsyncLock} = require('./helpers.js')
 const modlist_json_path = `./modlist.json`
 

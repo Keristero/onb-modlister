@@ -28,19 +28,11 @@ const detail_filters = {
 const sort_options={
     timestamp:{
         display_name:"Date",
-        sort_func:function(a,b){
-            let mod_a = mod_nodes[a]
-            let mod_b = mod_nodes[b]
-            return mod_b.details.timestamp - mod_a.details.timestamp
-        },
+        sort_detail:"timestamp"
     },
     damage:{
         display_name:"Damage",
-        sort_func:function(a,b){
-            let mod_a = mod_nodes[a]
-            let mod_b = mod_nodes[b]
-            return mod_b.details.damage - mod_a.details.damage
-        },
+        sort_detail:"damage"
     },
 }
 
@@ -135,3 +127,5 @@ class ModsSorter extends ModsFilter{
         }
     }
 }
+
+export {ModsFilter,ModsSorter,detail_filters,sort_options}

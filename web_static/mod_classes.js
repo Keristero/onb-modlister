@@ -246,3 +246,5 @@ class EncounterNode extends ModNode{
         this.encounter_preview.src = this.preview_link
     }
 }
+
+export { create_mod_node };

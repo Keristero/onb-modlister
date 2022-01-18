@@ -1,3 +1,6 @@
+import {create_mod_node} from './mod_classes.js'
+import {ModsFilter,ModsSorter,detail_filters,sort_options} from './filter.js'
+
 const div_mods = document.getElementById('mods')
 const div_filters = document.getElementById('filters')
 const mod_nodes = {}
@@ -5,35 +8,33 @@ const mod_nodes = {}
 let filter = new ModsFilter()
 let sorter = new ModsSorter()
 
-main()
-
-async function main() {
-    div_filters.appendChild(filter.get_html_element())
-    filter.filter_changed_callback = (filter_id,filter_value)=>{
-        filter_mod_list(filter_id,filter_value)
-    }
-    div_filters.appendChild(sorter.get_html_element())
-    sorter.selection_changed_callback = (sorter_id)=>{
-        sort_mod_list(sorter_id)
-    }
-
-    let mod_list = await get_mod_list()
-    update_mod_nodes(mod_list, mod_nodes)
-    render_mod_nodes(mod_nodes)
-    filter_mod_list('any',"")
+div_filters.appendChild(filter.get_html_element())
+filter.filter_changed_callback = (filter_id,filter_value)=>{
+    filter_mod_list(filter_id,filter_value)
 }
+div_filters.appendChild(sorter.get_html_element())
+sorter.selection_changed_callback = (sorter_id)=>{
+    sort_mod_list(sorter_id)
+}
+
+let mod_list = await get_mod_list()
+update_mod_nodes(mod_list, mod_nodes)
+render_mod_nodes(mod_nodes)
+filter_mod_list('any',"")
 
 function sort_mod_list(sorter_id){
     let sorter = sort_options[sorter_id]
     let mod_node_keys = Object.keys(mod_nodes)
-    console.log(mod_node_keys)
-    mod_node_keys.sort(sorter.sort_func)
-    console.log(mod_node_keys)
+    let sort_func = function(a,b){
+        let mod_a = mod_nodes[a]
+        let mod_b = mod_nodes[b]
+        return mod_b.details[sorter.sort_detail] - mod_a.details[sorter.sort_detail]
+    }
+    mod_node_keys.sort(sort_func)
     let i = 1
     for(let key of mod_node_keys){
         let mod_node = mod_nodes[key]
         mod_node.element.style.order = i
-        console.log(mod_node.details.damage)
         i++
     }
 }
