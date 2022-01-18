@@ -39,6 +39,21 @@ btn_select_all.onclick = async()=>{
 }
 div_filters.appendChild(btn_select_all)
 
+//create deselect all button
+let btn_clear_selection = document.createElement('button')
+btn_clear_selection.textContent = "Clear Selection"
+btn_clear_selection.onclick = async()=>{
+    //select all non hidden mods
+    for(let mod_id in mod_nodes){
+        let mod_node = mod_nodes[mod_id]
+        if(!mod_node.hidden){
+            mod_node.set_selection(false)
+        }
+    }
+}
+btn_clear_selection.style.display = "none"
+div_filters.appendChild(btn_clear_selection)
+
 //create download button
 let btn_download_selected = document.createElement('button')
 btn_download_selected.textContent = "Download Selected"
@@ -179,10 +194,12 @@ function modnode_selection_changed_callback(){
         console.log('counting selected mods')
         let selected_mods = list_selected_mods()
         if(selected_mods.length == 0){
+            btn_clear_selection.style.display = "none"
             btn_download_selected.style.display = "none"
         }else{
             btn_download_selected.innerText = `Download ${selected_mods.length} selected mods`
             btn_download_selected.style.display = "block"
+            btn_clear_selection.style.display = "block"
         }
     },10)
 }
