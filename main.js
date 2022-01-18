@@ -2,9 +2,9 @@ const https = require('https'); // or 'https' for https:// URLs
 const { createWriteStream, fstat } = require('fs')
 const { resolve, parse, join } = require('path')
 const { file_exists, write_image_data_to_file } = require('./helpers.js')
-const { readFile, unlink, readdir } = require('fs/promises')
+const { unlink, readdir } = require('fs/promises')
 
-const { scrapePackage } = require('./package-scraper/scrapePackage.js')
+const { scrape_package } = require('./package-scraper/package_scraper.js')
 const bot = require('./discord-bot/bot.js')
 const mod_list = require('./modlist.js');
 const modlist = require('./modlist.js');
@@ -184,8 +184,7 @@ function download(url, destination_file) {
 
 async function parse_mod_info(package_path) {
     try {
-        let data = await readFile(package_path)
-        let mod_info = await scrapePackage(data)
+        let mod_info = await scrape_package(package_path)
         return mod_info
     } catch (e) {
         console.log(`error parsing mod `, package_path)
