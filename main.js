@@ -109,20 +109,25 @@ async function download_new_attachments(attachments) {
     //iterate over each attachement and download it if we have not already got a copy in /mods
     let new_attachments = []
     for (let attachment of attachments) {
-        if (attachment.contentType != 'application/zip') {
-            //skip non zip attachments
-            continue
+        try{
+            if (attachment.contentType != 'application/zip') {
+                //skip non zip attachments
+                continue
+            }
+            attachment.path = resolve(`${join(mods_path, attachment.id)}.zip`)
+            let already_downloaded = await file_exists(attachment.path)
+            if (already_downloaded) {
+                //skip already downloaded attachments
+                continue
+            }
+            console.log(`started downloading ${attachment.name}`)
+            await download(attachment.url, attachment.path)
+            console.log(`successfully downloaded ${attachment.name}`)
+            //add any newly downloaded attachments to a list for parsing
+            new_attachments.push(attachment)
+        }catch(e){
+            console.log(`error downloading file `,e)
         }
-        attachment.path = resolve(`${join(mods_path, attachment.id)}.zip`)
-        let already_downloaded = await file_exists(attachment.path)
-        if (already_downloaded) {
-            continue
-        }
-        console.log(`started downloading ${attachment.name}`)
-        await download(attachment.url, attachment.path)
-        console.log(`successfully downloaded ${attachment.name}`)
-        //add any newly downloaded attachments to a list for parsing
-        new_attachments.push(attachment)
     }
     return new_attachments
 }
@@ -146,18 +151,18 @@ async function parse_attachments(attachments) {
             continue
         }
         console.log(mod_info)
-        //save images from mod_info to disk for previewing
-        if (mod_info.detail.icon) {
-            let image_path = await write_image_data_to_file(`./images`, `${mod_info.id}_icon`, 'png', mod_info.detail.icon)
-            mod_info.detail.icon = image_path
-        }
-        if (mod_info.detail.preview) {
-            let image_path = await write_image_data_to_file(`./images`, `${mod_info.id}_preview`, 'png', mod_info.detail.preview)
-            mod_info.detail.preview = image_path
-        }
 
         let status = await modlist.add_mod(mod_info, attachment_metadata)
         if (status == 'added') {
+            //save images from mod_info to disk for previewing
+            if (mod_info.detail.icon) {
+                let image_path = await write_image_data_to_file(`./images`, `${mod_info.id}_icon`, 'png', mod_info.detail.icon)
+                mod_info.detail.icon = image_path
+            }
+            if (mod_info.detail.preview) {
+                let image_path = await write_image_data_to_file(`./images`, `${mod_info.id}_preview`, 'png', mod_info.detail.preview)
+                mod_info.detail.preview = image_path
+            }
             await bot.react_to_attachment_message(attachment, good_mod_emoji)
         }else if(status == 'author') {
             await bot.react_to_attachment_message(attachment, wrong_author_emoji)
