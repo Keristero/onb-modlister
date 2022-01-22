@@ -36,30 +36,34 @@ async function main() {
 
 function remove_old_mods_regularly(every_x_seconds){
     setInterval(async()=>{
-        try{
-            console.log('comparing cached mods against all attachments...')
-            await remove_any_old_mods()
-        }catch(e){
-            console.log('poll failed',e)
-        }
+        console.log('comparing cached mods against all attachments...')
+        await remove_any_old_mods()
     },every_x_seconds*1000)
 }
 
 async function refresh_all_mods() {
-    //get a list of all attachements in the mods channel
-    let all_attachments = await bot.get_all_attachments_in_channel()
-    console.log(`got list of all attachments`)
-    let new_attachments = await download_new_attachments(all_attachments)
+    try{
+        //get a list of all attachements in the mods channel
+        let all_attachments = await bot.get_all_attachments_in_channel()
+        console.log(`got list of all attachments`)
+        let new_attachments = await download_new_attachments(all_attachments)
 
-    //iterate over each attachement and download it if we have not already got a copy in /mods
-    await parse_attachments(new_attachments)
+        //iterate over each attachement and download it if we have not already got a copy in /mods
+        await parse_attachments(new_attachments)
 
-    await remove_mods_not_in_attachment_list(all_attachments)
+        await remove_mods_not_in_attachment_list(all_attachments)
+    }catch(e){
+        console.log(`failed refreshing all mods`,e)
+    }
 }
 
 async function remove_any_old_mods(){
-    let all_attachments = await bot.get_all_attachments_in_channel()
-    await remove_mods_not_in_attachment_list(all_attachments)
+    try{
+        let all_attachments = await bot.get_all_attachments_in_channel()
+        await remove_mods_not_in_attachment_list(all_attachments)
+    }catch(e){
+        console.log(`failed removing old mods `,e)
+    }
 }
 
 async function remove_mods_not_in_attachment_list(all_attachments){
@@ -135,39 +139,43 @@ async function download_new_attachments(attachments) {
 async function parse_attachments(attachments) {
     //parse each new attachement and add them to the modlist
     for (let attachment of attachments) {
-        console.log('attachement', attachment)
-        let attachment_metadata = {
-            timestamp: attachment.timestamp,
-            discord_url: attachment.attachment,
-            author_name: attachment.author_name,
-            author_id: attachment.author_id,
-            original_filename: attachment.name,
-            attachment_id: attachment.id
-        }
-        let mod_info = await parse_mod_info(attachment.path)
-        if (!mod_info) {
-            console.log(`UNABLE TO PARSE MOD`, attachment)
-            await bot.react_to_attachment_message(attachment, bad_mod_emoji)
-            continue
-        }
-        console.log(mod_info)
-
-        let status = await modlist.add_mod(mod_info, attachment_metadata)
-        if (status == 'added') {
-            //save images from mod_info to disk for previewing
-            if (mod_info.detail.icon) {
-                let image_path = await write_image_data_to_file(`./images`, `${mod_info.id}_icon`, 'png', mod_info.detail.icon)
-                mod_info.detail.icon = image_path
+        try{
+            console.log('attachement', attachment)
+            let attachment_metadata = {
+                timestamp: attachment.timestamp,
+                discord_url: attachment.attachment,
+                author_name: attachment.author_name,
+                author_id: attachment.author_id,
+                original_filename: attachment.name,
+                attachment_id: attachment.id
             }
-            if (mod_info.detail.preview) {
-                let image_path = await write_image_data_to_file(`./images`, `${mod_info.id}_preview`, 'png', mod_info.detail.preview)
-                mod_info.detail.preview = image_path
+            let mod_info = await parse_mod_info(attachment.path)
+            if (!mod_info) {
+                console.log(`UNABLE TO PARSE MOD`, attachment)
+                await bot.react_to_attachment_message(attachment, bad_mod_emoji)
+                continue
             }
-            await bot.react_to_attachment_message(attachment, good_mod_emoji)
-        }else if(status == 'author') {
-            await bot.react_to_attachment_message(attachment, wrong_author_emoji)
-        }else if(status == 'old'){
-            await bot.react_to_attachment_message(attachment, archived_mod_emoji)
+            console.log(mod_info)
+    
+            let status = await modlist.add_mod(mod_info, attachment_metadata)
+            if (status == 'added') {
+                //save images from mod_info to disk for previewing
+                if (mod_info.detail.icon) {
+                    let image_path = await write_image_data_to_file(`./images`, `${mod_info.id}_icon`, 'png', mod_info.detail.icon)
+                    mod_info.detail.icon = image_path
+                }
+                if (mod_info.detail.preview) {
+                    let image_path = await write_image_data_to_file(`./images`, `${mod_info.id}_preview`, 'png', mod_info.detail.preview)
+                    mod_info.detail.preview = image_path
+                }
+                await bot.react_to_attachment_message(attachment, good_mod_emoji)
+            }else if(status == 'author') {
+                await bot.react_to_attachment_message(attachment, wrong_author_emoji)
+            }else if(status == 'old'){
+                await bot.react_to_attachment_message(attachment, archived_mod_emoji)
+            }
+        }catch(e){
+            console.log(`error parsing atachment`,e)
         }
     }
 }

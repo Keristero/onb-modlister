@@ -18,33 +18,25 @@ class Discordbot extends EventEmitter{
         this.client.login(DISCORD_TOKEN);
     }
     async get_attachment_thread(attachment){
-        try{
-            const channel = await this.client.channels.fetch(this.channel_id)
-            const thread = await channel.threads.fetch(attachment.thread_id)
-            return thread
-        }catch(e){
-            console.log(`unable to get thread from attachment`,e)
-            return null
-        }
+        const channel = await this.client.channels.fetch(this.channel_id)
+        const thread = await channel.threads.fetch(attachment.thread_id)
+        return thread
     }
     async get_attachment_message(attachment){
-        try{
-            const thread = await this.get_attachment_thread(attachment)
-            const message = await thread.messages.fetch(attachment.message_id)
-            return message
-        }catch(e){
-            console.log(`unable to get message from attachment`,e)
-            return null
-        }
+        const thread = await this.get_attachment_thread(attachment)
+        const message = await thread.messages.fetch(attachment.message_id)
+        return message
     }
     async react_to_attachment_message(attachment,emoji){
         try{
             const thread = await this.get_attachment_thread(attachment)
             if (!thread || thread.archived){
+                //cant react to archived threads
                 return
             }
             const message = await this.get_attachment_message(attachment)
             if(!message){
+                //cant react to messages that dont exist
                 return
             }
             console.log(`reacting to message with`,emoji)
@@ -71,50 +63,36 @@ class Discordbot extends EventEmitter{
         },every_x_seconds*1000)
     }
     async get_all_active_threads(channel){
-        try{
-            let fetched_active_threads = await channel.threads.fetchActive()
-            let threads = fetched_active_threads.threads
-            
-            while(fetched_active_threads.hasMore){
-                let options = {before:fetched_active_threads.threads.last()}
-                fetched_active_threads = await channel.threads.fetchActive(options)
-                threads = threads.concat(fetched_active_threads.threads)
-            }
-            return threads
-        }catch(e){
-            console.log('failed to get active threads',e)
-            return []
+        let fetched_active_threads = await channel.threads.fetchActive()
+        let threads = fetched_active_threads.threads
+        
+        while(fetched_active_threads.hasMore){
+            let options = {before:fetched_active_threads.threads.last()}
+            fetched_active_threads = await channel.threads.fetchActive(options)
+            threads = threads.concat(fetched_active_threads.threads)
         }
+        return threads
     }
     async get_all_archived_threads(channel){
-        try{
-            let fetched_archived_threads = await channel.threads.fetchArchived()
-            let threads = fetched_archived_threads.threads
-            
-            while(fetched_archived_threads.hasMore){
-                let options = {before:fetched_archived_threads.threads.last()}
-                fetched_archived_threads = await channel.threads.fetchArchived(options)
-                threads = threads.concat(fetched_archived_threads.threads)
-            }
-            return threads
-        }catch(e){
-            console.log('failed to get archived threads',e)
-            return []
+        let fetched_archived_threads = await channel.threads.fetchArchived()
+        let threads = fetched_archived_threads.threads
+        
+        while(fetched_archived_threads.hasMore){
+            let options = {before:fetched_archived_threads.threads.last()}
+            fetched_archived_threads = await channel.threads.fetchArchived(options)
+            threads = threads.concat(fetched_archived_threads.threads)
         }
+        return threads
     }
     async get_all_attachments_in_channel(){
-        try{
-            const channel = await this.client.channels.fetch(this.channel_id)
-            //fetch all threads from channel, active and inactive
-            let threads = await this.get_all_active_threads(channel)
-            let archived_threads = await this.get_all_archived_threads(channel)
-            threads = threads.concat(archived_threads)
-            console.log('fetched',threads.size,'threads')
-            let attachments = await this.get_all_attachments_from_list_of_threads(threads)
-            return attachments
-        }catch(e){
-            console.log('failed to get attachments',e)
-        }
+        const channel = await this.client.channels.fetch(this.channel_id)
+        //fetch all threads from channel, active and inactive
+        let threads = await this.get_all_active_threads(channel)
+        let archived_threads = await this.get_all_archived_threads(channel)
+        threads = threads.concat(archived_threads)
+        console.log('fetched',threads.size,'threads')
+        let attachments = await this.get_all_attachments_from_list_of_threads(threads)
+        return attachments
     }
     async get_all_messages_in_thread(thread) {
         const sum_messages = [];
@@ -157,12 +135,13 @@ class Discordbot extends EventEmitter{
                         })
                     })
                 })
+                await Promise.all(thread_promises)
+                console.log(`got ${attachments.length} attachments`)
+                resolve(attachments)
             }catch(e){
                 console.log('failed to get attachments from threads',e)
+                reject(e)
             }
-            await Promise.all(thread_promises)
-            console.log(`got ${attachments.length} attachments`)
-            resolve(attachments)
         })
     }
 }
