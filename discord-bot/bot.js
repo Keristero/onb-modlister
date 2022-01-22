@@ -66,7 +66,7 @@ class Discordbot extends EventEmitter{
                     this.emit('active_thread_attachments',attachments)
                 }
             }catch(e){
-                console.log('poll failed',e)
+                console.log('periodic polling for attachments failed with error',e)
             }
         },every_x_seconds*1000)
     }
