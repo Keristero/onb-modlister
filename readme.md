@@ -13,7 +13,7 @@ when you add a mod to a thread in the mods channel - the bot will check it out a
 
 # Todo
 
-1. 
-1. let users select multiple mods to download, send a .zip with the correct folder structure containing the selected mods
-1. add radio buttons for selecting mod types to display
-1. add search for many fields
+1. add hover style
+1. display chip damage, codes and elements
+1. display mod details on right click, including link to discord thread
+1. scrape skins from the skins channel

@@ -73,6 +73,9 @@ button{
     overflow:hidden;
     box-shadow: 2px 5px 10px rgba(0, 0, 0, 0.287);
 }
+.mod:hover{
+    box-shadow: 2px 5px 10px rgba(255, 255, 255, 0.287);
+}
 
 .selected{
     color:blue;
