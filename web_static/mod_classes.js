@@ -89,6 +89,9 @@ class ModNode{
             this.element.onclick = ()=>{
                 this.clicked()
             }
+            this.element.addEventListener('contextmenu', e => {
+                e.preventDefault();
+            });
         }
         //clear class list
         this.element.classList.remove(...this.element.classList);
@@ -103,6 +106,7 @@ class ModNode{
         if(!this.preview_window){
             this.preview_window = document.createElement('p')
             this.preview_window.classList.add("preview_window")
+            this.preview_window.classList.add("disable_selection");
             this.element.appendChild(this.preview_window)
         }
         if(!this.p_description){
@@ -155,7 +159,8 @@ class ModNode{
         return this.data.data.id
     }
     get preview_link(){
-        return `/${this.data?.data?.detail?.preview}`
+        console.log(this.data?.data?.detail?.preview)
+        return this.data?.data?.detail?.preview
     }
 }
 

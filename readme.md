@@ -16,4 +16,5 @@ when you add a mod to a thread in the mods channel - the bot will check it out a
 1. add hover style
 1. display chip damage, codes and elements
 1. display mod details on right click, including link to discord thread
+1. scrape using .json definitions from the OBN docs, this will allow scraping of navi names and more ;)
 1. scrape skins from the skins channel
