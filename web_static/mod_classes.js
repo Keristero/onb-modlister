@@ -181,9 +181,25 @@ class CardNode extends ModNode{
         if(!this.chip_icon){
             this.chip_icon = document.createElement('img')
             this.chip_icon.classList.add("chip_icon")
-            this.preview_window.appendChild(this.chip_icon)
+            this.element.appendChild(this.chip_icon)
         }
         this.chip_icon.src = this.icon_link
+
+        this.element.classList.add(this.card_class)
+
+        if(!this.element_icon){
+            this.element_icon = document.createElement('img')
+            this.element_icon.classList.add("element")
+            this.element.appendChild(this.element_icon)
+        }
+        this.element_icon.src = `images/${this.chip_element}.png`
+
+        if(!this.codes_p){
+            this.codes_p = document.createElement('p')
+            this.codes_p.classList.add("chip_codes")
+            this.element.appendChild(this.codes_p)
+        }
+        this.codes_p.textContent = this.codes_string.join(" ")
 
         this.element.classList.add(this.card_class)
     }
@@ -195,6 +211,12 @@ class CardNode extends ModNode{
     }
     get icon_link(){
         return `/${this.data?.data?.detail?.icon}`
+    }
+    get chip_element(){
+        return (this.data?.data?.detail?.props?.element || 'none').toLowerCase()
+    }
+    get codes_string(){
+        return (this.data?.data?.detail?.codes || [])
     }
 }
 

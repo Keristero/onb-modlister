@@ -122,10 +122,29 @@ button{
 }
 .chip_icon{
     position: absolute;
-    top:0px;
+    top:111px;
+    left:0px;
+    width:14;
+    height:14;
+}
+.chip_codes{
+    position: absolute;
+    top:111px;
+    left:14;
+    padding-left: 4px;
+    height:14;
+    width:100%;
+    background-color: rgba(0, 0, 0, 0.753);
+    color:rgba(255, 255, 255, 0.705);
+    text-shadow: 1px 1px rgba(0, 0, 0, 0.705);
+}
+.element{
+    position: absolute;
+    top:111px;
     right:0px;
-    width:28px;
-    height:28px;
+    width:14;
+    height:14;
+    z-index: 1;
 }
 .player_preview{
     height:128px;
