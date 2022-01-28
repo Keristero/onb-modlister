@@ -45,7 +45,7 @@ class Modlist{
         delete this.modlist[sanitize_string(mod.data.id)]
         await this.save_modlist()
     }
-    async add_mod(mod_info,attachment_metadata){
+    async test_mod_update_validity(mod_info,attachment_metadata){
         let new_mod = {
             data:mod_info,
             attachement_data:attachment_metadata
@@ -71,6 +71,14 @@ class Modlist{
                 return 'old'
             }
         }
+        return 'valid'
+    }
+    async add_mod(mod_info,attachment_metadata){
+        let new_mod = {
+            data:mod_info,
+            attachement_data:attachment_metadata
+        }
+        let mod_id = sanitize_string(new_mod.data.id)
 
         this.modlist[mod_id] = new_mod
         await this.save_modlist()

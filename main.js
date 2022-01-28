@@ -157,21 +157,22 @@ async function parse_attachments(attachments) {
             }
             console.log(mod_info)
     
-            let status = await modlist.add_mod(mod_info, attachment_metadata)
-            if (status == 'added') {
+            let validity = await modlist.test_mod_update_validity(mod_info,attachment_metadata)
+            if (validity == 'valid') {
                 //save images from mod_info to disk for previewing
-                if (mod_info.detail.icon) {
+                if (mod_info?.detail?.icon) {
                     let image_path = await write_image_data_to_file(`./images`, `${mod_info.id}_icon`, 'png', mod_info.detail.icon)
                     mod_info.detail.icon = image_path
                 }
-                if (mod_info.detail.preview) {
+                if (mod_info?.detail?.preview) {
                     let image_path = await write_image_data_to_file(`./images`, `${mod_info.id}_preview`, 'png', mod_info.detail.preview)
                     mod_info.detail.preview = image_path
                 }
+                await modlist.add_mod(mod_info, attachment_metadata)
                 await bot.react_to_attachment_message(attachment, good_mod_emoji)
-            }else if(status == 'author') {
+            }else if(validity == 'author') {
                 await bot.react_to_attachment_message(attachment, wrong_author_emoji)
-            }else if(status == 'old'){
+            }else if(validity == 'old'){
                 await bot.react_to_attachment_message(attachment, archived_mod_emoji)
             }
         }catch(e){

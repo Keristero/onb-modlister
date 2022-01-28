@@ -87,7 +87,6 @@ async function download_selected_mods() {
     let zip_entries = []
     for(let mod_node of selected_mod_nodes){
         let local_url = `/mods/${mod_node.data.attachement_data.attachment_id}.zip`
-        console.log(`fetching ${local_url}`)
         let response = await fetch(new Request(local_url))
         let zip_entry = { name: `${mod_node.folder}/${mod_node.id}.zip`, lastModified: new Date(), input:response }
         zip_entries.push(zip_entry)

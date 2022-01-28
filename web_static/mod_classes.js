@@ -82,6 +82,10 @@ class ModNode{
     create(){
         this.update(this.data)
     }
+    open_context_menu(e){
+        e.preventDefault()
+        console.log('righty')
+    }
     update(latest_mod_data){
         this.data = latest_mod_data
         if(!this.element){
@@ -132,6 +136,9 @@ class ModNode{
         }
         this.nft.href = `https://youtu.be/dQw4w9WgXcQ`
         this.nft.textContent = "Buy NFT!"
+
+        //context menu
+        this.element.addEventListener('contextmenu', this.open_context_menu);
         
     }
     get download_link(){
