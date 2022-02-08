@@ -288,6 +288,24 @@ function implementSupportingAPI(lua, packageInfo) {
         },
     });
 
+    lua.global.set("TileState",{
+        Normal:0,
+        Cracked:1,
+        Broken:2,
+        DirectionUp:11,
+        DirectionDown:12,
+        DirectionLeft:9,
+        DirectionRight:10,
+        Empty:7,
+        Grass:4,
+        Hidden:14,
+        Holy:8,
+        Ice:3,
+        Lava:5,
+        Poison:6,
+        Volcano:13
+    })
+
     lua.global.set("Blocks", {
         White: "White",
         Red: "Red",
