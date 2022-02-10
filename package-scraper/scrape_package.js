@@ -306,6 +306,22 @@ function implementSupportingAPI(lua, packageInfo) {
         Volcano:13
     })
 
+    lua.global.set("Hit",{
+        None:0,
+        Flinch:1,
+        Flash:2,
+        Stun:3,
+        Root:4,
+        Impact:5,
+        Shake:6,
+        Pierce:7,
+        Retangible:8,
+        Breaking:9,
+        Bubble:10,
+        Freeze:11,
+        Drag:12
+    })
+
     lua.global.set("Blocks", {
         White: "White",
         Red: "Red",
