@@ -70,7 +70,6 @@ button{
     height: 200px;
     text-align: left;
     background-color:rgba(255, 255, 255, 0.329);
-    overflow:hidden;
     box-shadow: 2px 5px 10px rgba(0, 0, 0, 0.287);
 }
 
@@ -95,10 +94,30 @@ button{
     user-select: none;
 }
 
+.detail_view{
+    display:inline-flex;
+    position:absolute;
+    margin: 0;
+    padding:6px;
+    background-color:rgba(22, 22, 22, 0.842);
+    color:rgb(255, 255, 255);
+    box-shadow: 2px 5px 10px rgba(0, 0, 0, 0.287);
+    z-index: 2;
+    transition: width 1s, height 1s;
+}
+.detail_view p{
+    margin:4px;
+    width:max-content;
+}
+.detail_view a{
+    color:rgb(251, 255, 0);
+}
+
 
 /* styles for properties of the mod nodes */
 .name{
     display:block;
+    overflow:hidden;
     font-weight: bold;
     top: 0px;
     left: 0px;
@@ -133,7 +152,7 @@ button{
     left:14;
     padding-left: 4px;
     height:14;
-    width:100%;
+    width:172px;
     background-color: rgba(0, 0, 0, 0.753);
     color:rgba(255, 255, 255, 0.705);
     text-shadow: 1px 1px rgba(0, 0, 0, 0.705);

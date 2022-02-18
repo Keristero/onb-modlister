@@ -1,3 +1,5 @@
+import {display_detail_view_for_mod,hide_detail_view} from './detail_view.js'
+
 function create_mod_node(mod_id,mod_data){
     if(mod_data.data.type == "card"){
         return new CardNode(mod_id,mod_data)
@@ -37,6 +39,7 @@ class ModNode{
         }
     }
     clicked(){
+        hide_detail_view()
         if(!this.selected){
             this.set_selection(true)
         }else{
@@ -85,6 +88,8 @@ class ModNode{
     open_context_menu(e){
         e.preventDefault()
         console.log('righty')
+        hide_detail_view()
+        display_detail_view_for_mod(this)
     }
     update(latest_mod_data){
         this.data = latest_mod_data
@@ -138,7 +143,7 @@ class ModNode{
         this.nft.textContent = "Buy NFT!"
 
         //context menu
-        this.element.addEventListener('contextmenu', this.open_context_menu);
+        this.element.addEventListener('contextmenu', (e)=>{this.open_context_menu(e)});
         
     }
     get download_link(){

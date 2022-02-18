@@ -1,6 +1,7 @@
 import {create_mod_node} from './mod_classes.js'
 import {ModsFilter,ModsSorter,detail_filters,sort_options} from './filter.js'
 import {downloadZip} from './libs/client-zip.js'
+import {hide_detail_view} from './detail_view.js'
 
 const div_mods = document.getElementById('mods')
 const div_filters = document.getElementById('filters')
@@ -24,6 +25,11 @@ update_mod_nodes(mod_list, mod_nodes)
 render_mod_nodes(mod_nodes)
 filter_mod_list('any',"")
 sort_mod_list("timestamp")
+
+//handle clicks to anywhere else on the page
+document.body.addEventListener('click',(e)=>{
+    hide_detail_view()
+})
 
 //create select all button
 let btn_select_all = document.createElement('button')

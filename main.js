@@ -147,7 +147,8 @@ async function parse_attachments(attachments) {
                 author_name: attachment.author_name,
                 author_id: attachment.author_id,
                 original_filename: attachment.name,
-                attachment_id: attachment.id
+                attachment_id: attachment.id,
+                thread_id: attachment.thread_id
             }
             let mod_info = await parse_mod_info(attachment.path)
             if (!mod_info) {
