@@ -177,6 +177,13 @@ class ModNode{
 }
 
 class CardNode extends ModNode{
+    static damage_text_colors = {
+        1:`rgb(255,255,255)`,
+        200:`rgb(255, 255, 125)`,
+        400:`rgb(255, 120, 120)`,
+        600:`rgb(190, 120, 230)`,
+        800:`rgb(0, 0, 0)`
+    }
     constructor(mod_id,mod_data){
         super(mod_id,mod_data)
         this.folder = 'cards'
@@ -197,8 +204,6 @@ class CardNode extends ModNode{
         }
         this.chip_icon.src = this.icon_link
 
-        this.element.classList.add(this.card_class)
-
         if(!this.element_icon){
             this.element_icon = document.createElement('img')
             this.element_icon.classList.add("element")
@@ -212,6 +217,23 @@ class CardNode extends ModNode{
             this.element.appendChild(this.codes_p)
         }
         this.codes_p.textContent = this.codes_string.join(" ")
+
+        if(this.damage > 0){
+            if(!this.p_damage){
+                this.p_damage = document.createElement('p')
+                this.p_damage.classList.add("damage")
+                this.element.appendChild(this.p_damage)
+            }
+            for(let threshold in CardNode.damage_text_colors){
+                if(this.damage >= Number(threshold)){
+                    this.p_damage.style.color = CardNode.damage_text_colors[threshold]
+                }
+                if(this.damage >= 800){
+                    this.p_damage.style.textShadow = `2px 2px 0px rgb(200, 200, 200);`
+                }
+            }
+            this.p_damage.textContent = this.damage
+        }
 
         this.element.classList.add(this.card_class)
     }
@@ -229,6 +251,14 @@ class CardNode extends ModNode{
     }
     get codes_string(){
         return (this.data?.data?.detail?.codes || [])
+    }
+    get damage(){
+        let raw_dmg = this.data?.data?.detail?.props?.damage
+        if(!raw_dmg){
+            return 0
+        }
+        let damage = Math.floor(Number(raw_dmg))
+        return Math.min(9999,damage)
     }
 }
 

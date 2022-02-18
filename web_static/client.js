@@ -20,16 +20,17 @@ sorter.selection_changed_callback = (sorter_id)=>{
     sort_mod_list(sorter_id)
 }
 
+//hide detail view by default, and if you click anywhere
+hide_detail_view()
+document.body.addEventListener('click',(e)=>{
+    hide_detail_view()
+})
+
 let mod_list = await get_mod_list()
 update_mod_nodes(mod_list, mod_nodes)
 render_mod_nodes(mod_nodes)
 filter_mod_list('any',"")
 sort_mod_list("timestamp")
-
-//handle clicks to anywhere else on the page
-document.body.addEventListener('click',(e)=>{
-    hide_detail_view()
-})
 
 //create select all button
 let btn_select_all = document.createElement('button')
