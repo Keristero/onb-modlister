@@ -229,7 +229,7 @@ class CardNode extends ModNode{
                     this.p_damage.style.color = CardNode.damage_text_colors[threshold]
                 }
                 if(this.damage >= 800){
-                    this.p_damage.style.textShadow = `2px 2px 0px rgb(200, 200, 200);`
+                    this.p_damage.style.textShadow = `2px 2px 0px rgb(200, 200, 200)`
                 }
             }
             this.p_damage.textContent = this.damage
