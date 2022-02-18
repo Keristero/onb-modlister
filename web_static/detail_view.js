@@ -45,14 +45,22 @@ class DetailView{
                 hide_detail_view()
             }
         }
-        let new_inner_text = ""
+        //delete all children the slow way
+        this.element.innerHTML = ""
         for(let detail_name in this.details_to_show){
+            let detail_p = document.createElement('p')
             let detail_value = this.details_to_show[detail_name](mod)
-            if(detail_value){
-                new_inner_text += `<p>${detail_name}: ${detail_value}</p>`
+            if(!detail_value){
+                continue
             }
+            if(detail_name == "Thread"){
+                //this is unsafe to do for other fields...
+                detail_p.innerHTML = `${detail_name}: ${detail_value}`
+            }else{
+                detail_p.innerText = `${detail_name}: ${detail_value}`
+            }
+            this.element.appendChild(detail_p)
         }
-        this.element.innerHTML = new_inner_text
     }
 }
 
