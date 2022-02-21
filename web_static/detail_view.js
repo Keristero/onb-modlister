@@ -7,7 +7,7 @@ class DetailView{
             'Uploader':(mod)=>{return mod.details.author_name},
             'Thread':(mod)=>{
                 let thread_id = mod?.data?.attachement_data?.thread_id
-                let guild_id = mod?.data?.attachement_data?.thread_id
+                let guild_id = mod?.data?.attachement_data?.guild_id
                 let attachment_id = mod?.data?.attachement_data?.attachment_id
                 if(guild_id && thread_id && attachment_id){
                     return `<a href=discord://discord.com/channels/${guild_id}/${thread_id}/${attachment_id} target="_blank">Discord</a>

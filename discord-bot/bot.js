@@ -126,11 +126,14 @@ class Discordbot extends EventEmitter{
                     const messages = await thread_fetch
                     messages.forEach((message) => {
                         message.attachments.forEach((attachment) => {
+                            //add required extra meta data to the attachment object
                             attachment.timestamp = message.createdTimestamp
                             attachment.author_name = message.author.username
                             attachment.author_id = message.author.id
                             attachment.message_id = message.id
                             attachment.thread_id = thread.id
+                            attachment.guild_id = message.guildId
+                            //add attachment to list
                             attachments.push(attachment)
                         })
                     })
