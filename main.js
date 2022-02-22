@@ -5,9 +5,10 @@ const { file_exists, write_image_data_to_file } = require('./helpers.js')
 const { unlink, readdir } = require('fs/promises')
 
 const { scrape_package } = require('./package-scraper/package_scraper.js')
+const {zip_and_hash_package} = require('./zip_and_hash.js')
 const bot = require('./discord-bot/bot.js')
-const mod_list = require('./modlist.js');
-const modlist = require('./modlist.js');
+const mod_list = require('./modlist.js')
+const modlist = require('./modlist.js')
 const webserver = require('./webserver.js')
 
 const mods_path = "mods/"
@@ -161,6 +162,9 @@ async function parse_attachments(attachments) {
     
             let validity = await modlist.test_mod_update_validity(mod_info,attachment_metadata)
             if (validity == 'valid') {
+                //zip and hash the package using the game client
+                let client_res = await zip_and_hash_package(attachment.path, mod_info)
+                mod_info.hash = client_res.hash
                 //save images from mod_info to disk for previewing
                 if (mod_info?.detail?.icon) {
                     let image_path = await write_image_data_to_file(`./images`, `${mod_info.id}_icon`, 'png', mod_info.detail.icon)

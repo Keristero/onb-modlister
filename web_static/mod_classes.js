@@ -1,12 +1,12 @@
 import {display_detail_view_for_mod,hide_detail_view} from './detail_view.js'
 
 function create_mod_node(mod_id,mod_data){
-    if(mod_data.data.type == "card"){
+    if(mod_data.data.type == "cards"){
         return new CardNode(mod_id,mod_data)
-    }else if(mod_data.data.type == "player"){
+    }else if(mod_data.data.type == "players"){
         return new PlayerNode(mod_id,mod_data)
-    }else if(mod_data.data.type == "encounter"){
-        return new EncounterNode(mod_id,mod_data)
+    }else if(mod_data.data.type == "enemies"){
+        return new EnemyNode(mod_id,mod_data)
     }else if(mod_data.data.type == "blocks"){
         return new BlockNode(mod_id,mod_data)
     }else{
@@ -17,7 +17,6 @@ function create_mod_node(mod_id,mod_data){
 class ModNode{
     constructor(mod_id,mod_data){
         this.id = mod_id
-        this.folder = 'libs'
         this.data = mod_data
         this.hidden = false
         this.selected = false
@@ -186,7 +185,6 @@ class CardNode extends ModNode{
     }
     constructor(mod_id,mod_data){
         super(mod_id,mod_data)
-        this.folder = 'cards'
     }
     update(latest_mod_data){
         super.update(latest_mod_data)
@@ -265,7 +263,6 @@ class CardNode extends ModNode{
 class PlayerNode extends ModNode{
     constructor(mod_id,mod_data){
         super(mod_id,mod_data)
-        this.folder = 'players'
     }
     update(latest_mod_data){
         super.update(latest_mod_data)
@@ -281,7 +278,6 @@ class PlayerNode extends ModNode{
 class BlockNode extends ModNode{
     constructor(mod_id,mod_data){
         super(mod_id,mod_data)
-        this.folder = 'blocks'
     }
     update(latest_mod_data){
         super.update(latest_mod_data)
@@ -327,23 +323,22 @@ class BlockNode extends ModNode{
 }
 
 
-class EncounterNode extends ModNode{
+class EnemyNode extends ModNode{
     constructor(mod_id,mod_data){
         super(mod_id,mod_data)
-        this.folder = 'enemies'
     }
     update(latest_mod_data){
         super.update(latest_mod_data)
 
         this.element.classList.add("encounter")
 
-        if(!this.encounter_preview){
-            this.encounter_preview = document.createElement('img')
-            this.encounter_preview.classList.add("encounter_preview")
-            this.preview_window.appendChild(this.encounter_preview)
+        if(!this.enemy_preview){
+            this.enemy_preview = document.createElement('img')
+            this.enemy_preview.classList.add("enemy_preview")
+            this.preview_window.appendChild(this.enemy_preview)
         }
-        this.element.classList.add("encounter_node")
-        this.encounter_preview.src = this.preview_link
+        this.element.classList.add("enemy_node")
+        this.enemy_preview.src = this.preview_link
     }
 }
 

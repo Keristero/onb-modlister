@@ -24,5 +24,10 @@ app.get('/mod_list', function (req, res) {
     res.end(JSON.stringify(modlist.get_all()));
 })
 
+app.get('/mod_whitelist',function(req,res){
+    res.setHeader('Content-Type', 'text/plain');
+    res.end(modlist.get_all_whitelist());
+})
+
 app.listen(PORT)
 console.log(`webserver hosted on http://localhost:${PORT}`)

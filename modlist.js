@@ -23,6 +23,15 @@ class Modlist{
         this.has_changed_since_last_get_all = false
         return this.modlist
     }
+    get_all_whitelist(){
+        let result = []
+        for(let sane_mod_id in this.modlist){
+            let mod = this.modlist[sane_mod_id]
+            console.log(mod)
+            result.push(`${mod.data.hash} ${mod.data.id}`)
+        }
+        return result.join('\n')
+    }
     async save_modlist(){
         await json_lock.promise
         json_lock.enable()

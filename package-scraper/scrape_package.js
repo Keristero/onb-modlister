@@ -94,9 +94,9 @@ async function scrapePackage(zipFile) {
 }
 
 async function getPackageInfo(entry_file) {
-    const DEFAULT_PACKAGE_TYPE = "lib";
+    const DEFAULT_PACKAGE_TYPE = "libs";
     const packageInfo = {
-        type: DEFAULT_PACKAGE_TYPE, // "blocks" | "card" | "encounter" | "lib" | "player"
+        type: DEFAULT_PACKAGE_TYPE, // "blocks" | "cards" | "enemies" | "libs" | "players"
         id: undefined, // string
         dependencies: [],
         subpackages: [],
@@ -111,7 +111,7 @@ async function getPackageInfo(entry_file) {
             props,
             // card + player properties
             icon, // string -> uint8array
-            // card, encounter, and player properties
+            // card, enemies, and player properties
             preview, // string -> uint8array
             */
         },
@@ -162,11 +162,11 @@ async function getPackageInfo(entry_file) {
 
             // cards
             set_codes: (codes) => {
-                packageInfo.type = "card";
+                packageInfo.type = "cards";
                 packageInfo.detail.codes = codes;
             },
             get_card_props: () => {
-                packageInfo.type = "card";
+                packageInfo.type = "cards";
                 if (!packageInfo.detail.props) {
                     packageInfo.detail.props = {
                         can_boost: true,
@@ -179,24 +179,24 @@ async function getPackageInfo(entry_file) {
 
             // players
             set_special_description: (description) => {
-                packageInfo.type = "player";
+                packageInfo.type = "players";
                 packageInfo.description = description;
             },
             set_overworld_animation_path: () => {
-                packageInfo.type = "player";
+                packageInfo.type = "players";
             },
             set_overworld_texture_path: () => {
-                packageInfo.type = "player";
+                packageInfo.type = "players";
             },
             set_mugshot_texture_path: () => {
-                packageInfo.type = "player";
+                packageInfo.type = "players";
             },
             set_mugshot_animation_path: () => {
-                packageInfo.type = "player";
+                packageInfo.type = "players";
             },
             set_emotions_texture_path: () => { },
 
-            // cards, encounters, and players
+            // cards, enemies, and players
             set_preview_texture: (path) => {
                 packageInfo.detail.preview = path;
             },
@@ -209,7 +209,7 @@ async function getPackageInfo(entry_file) {
                 packageInfo.detail.icon = path;
             },
 
-            // encounters + players
+            // enemies + players
             set_speed: () => { },
             set_attack: () => { },
             set_health: () => { },
@@ -230,7 +230,7 @@ async function getPackageInfo(entry_file) {
             packageInfo.type == DEFAULT_PACKAGE_TYPE &&
             lua.global.get("package_build")
         ) {
-            packageInfo.type = "encounter";
+            packageInfo.type = "enemies";
         }
     } finally {
         // Close the lua environment, so it can be freed

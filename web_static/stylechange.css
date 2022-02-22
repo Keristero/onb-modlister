@@ -133,7 +133,7 @@ button{
     top:15px;
     width:100%;
 }
-.encounter_preview{
+.enemy_preview{
     height:96px;
 }
 .chip_preview{
@@ -209,7 +209,7 @@ button{
 }
 
 /* na */
-.encounter_node{
+.enemy_node{
     background-color:rgba(255, 0, 0, 0.26);
 }
 

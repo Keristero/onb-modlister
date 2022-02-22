@@ -16,6 +16,10 @@ class DetailView{
             },
             'Date':(mod)=>{
                 return new Date(mod?.data?.attachement_data?.timestamp).toLocaleDateString();
+            },
+            'Hash':(mod)=>{
+                console.log(mod)
+                return mod?.data?.data?.hash
             }
         }
     }
