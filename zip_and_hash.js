@@ -19,9 +19,12 @@ async function clear_client_mods() {
 
 async function ensure_dir_exists(filePath) {
     var dirname = path.dirname(filePath);
-    let res = await stat(dirname)
-    if (res.isDirectory()) {
-        return true;
+    try{
+        let res = await stat(dirname)
+        if (res.isDirectory()) {
+            return true;
+        }
+    }catch(e){
     }
     await mkdir(dirname)
     return true
