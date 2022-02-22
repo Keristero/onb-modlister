@@ -86,7 +86,6 @@ class ModNode{
     }
     open_context_menu(e){
         e.preventDefault()
-        console.log('righty')
         hide_detail_view()
         display_detail_view_for_mod(this)
     }
@@ -170,7 +169,6 @@ class ModNode{
         return this.data.data.id
     }
     get preview_link(){
-        console.log(this.data?.data?.detail?.preview)
         return this.data?.data?.detail?.preview
     }
 }

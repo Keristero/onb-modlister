@@ -18,7 +18,6 @@ class DetailView{
                 return new Date(mod?.data?.attachement_data?.timestamp).toLocaleDateString();
             },
             'Hash':(mod)=>{
-                console.log(mod)
                 return mod?.data?.data?.hash
             }
         }
@@ -41,7 +40,6 @@ class DetailView{
     }
     update(mod){
         this.mod = mod
-        console.log(this.details)
         if(!this.element){
             this.element = document.createElement('div')
             this.element.classList.add("detail_view");

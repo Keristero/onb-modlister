@@ -1,5 +1,5 @@
 const path = require('path')
-const { readdir, unlink, writeFile, copyFile, readFile, mkdir,rm} = require('fs/promises')
+const { readdir, unlink, writeFile, copyFile, readFile, mkdir,rm,stat} = require('fs/promises')
 const { exec } = require('child_process')
 const JSZip = require("jszip")
 
@@ -11,11 +11,20 @@ async function clear_client_mods() {
         let mod_folder_path = path.join(game_client_folder,'resources','mods', sub_folder)
         let files = await readdir(mod_folder_path)
         for (let file of files) {
-            console.log("file to delete",file)
             let file_path = path.join(mod_folder_path, file)
             await rm(file_path,{ recursive: true, force: true })
         }
     }
+}
+
+async function ensure_dir_exists(filePath) {
+    var dirname = path.dirname(filePath);
+    let res = await stat(dirname)
+    if (res.isDirectory()) {
+        return true;
+    }
+    await mkdir(dirname)
+    return true
 }
 
 async function unzip(source_path, dest_path) {
@@ -24,12 +33,12 @@ async function unzip(source_path, dest_path) {
     for (let file_name in zip.files) {
         let content = await zip.file(file_name).async('nodebuffer')
         let dest_file_path = path.join(dest_path, file_name)
+        await ensure_dir_exists(dest_file_path)
         await writeFile(dest_file_path, content)
     }
 }
 
 async function zip_and_hash_package(package_path, mod_info) {
-    console.log('mod info',mod_info)
     console.log('clearing client mods')
     await clear_client_mods()
     let unzip_destination = path.join(game_client_folder, 'resources', 'mods', mod_info.type, 'package')
