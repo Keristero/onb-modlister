@@ -1,7 +1,6 @@
 const path = require('path')
-const { readdir, unlink, writeFile, copyFile, readFile, mkdir,rm,stat} = require('fs/promises')
+const { readdir, copyFile, mkdir,rm,stat} = require('fs/promises')
 const { exec } = require('child_process')
-const JSZip = require("jszip")
 
 const game_client_folder = path.join('.', 'game-client', 'Release')
 
@@ -30,30 +29,18 @@ async function ensure_dir_exists(filePath) {
     return true
 }
 
-async function unzip(source_path, dest_path) {
-    let zip_data = await readFile(source_path)
-    let zip = await JSZip.loadAsync(zip_data)
-    for (let file_name in zip.files) {
-        let content = await zip.file(file_name).async('nodebuffer')
-        let dest_file_path = path.join(dest_path, file_name)
-        await ensure_dir_exists(dest_file_path)
-        await writeFile(dest_file_path, content)
-    }
-}
-
-async function zip_and_hash_package(package_path, mod_info) {
+async function zip_and_hash_package(attachment_path, mod_info) {
     console.log('clearing client mods')
     await clear_client_mods()
-    let unzip_destination = path.join(game_client_folder, 'resources', 'mods', mod_info.type, 'package')
-    await mkdir(unzip_destination)
-    console.log('unzipping ',package_path,' mod to ', unzip_destination)
-    await unzip(package_path, unzip_destination)
+    let package_path = path.join(game_client_folder, 'resources', 'mods', mod_info.type, 'package.zip')
+    console.log('copying ',attachment_path,' attachment to ', package_path)
+    await copyFile(attachment_path, package_path)
     let hash_result = await launch_client_zip_and_hash()
     console.log('hash result',hash_result)
     if(hash_result){
-        let zipped_path = unzip_destination+'.zip'
+        let zipped_path = package_path
         console.log('copying client zipped mod from',zipped_path)
-        await copyFile(zipped_path,package_path)
+        await copyFile(zipped_path,attachment_path)
         console.log('overwrote original package zip with client zipped package')
         return hash_result
     }
