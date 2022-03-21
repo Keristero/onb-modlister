@@ -5,3 +5,4 @@ node_modules/
 run.sh
 run.bat
 /game-client/Release/
+/game-client/ReleaseLin/
