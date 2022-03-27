@@ -41,7 +41,7 @@ class Modlist{
     async get_mod_by_attachment_id(attachment_id){
         for(let sanitized_package_id in this.modlist){
             let mod = this.modlist[sanitized_package_id]
-            if(mod.attachement_data.attachment_id == attachment_id){
+            if(mod.attachment_data.attachment_id == attachment_id){
                 return mod
             }
         }
@@ -57,18 +57,18 @@ class Modlist{
     async test_mod_update_validity(mod_info,attachment_metadata){
         let new_mod = {
             data:mod_info,
-            attachement_data:attachment_metadata
+            attachment_data:attachment_metadata
         }
         let mod_id = sanitize_string(new_mod.data.id)
-        let mod_timestamp = new_mod.attachement_data.timestamp
-        let mod_author = new_mod.attachement_data.author_id
+        let mod_timestamp = new_mod.attachment_data.timestamp
+        let mod_author = new_mod.attachment_data.author_id
 
         //get exising mod with the same id, if there is one
         let existing_mod = this.get_mod_by_id(mod_id)
         if(existing_mod){
             //if there is an existing mod by the same author, we can replace it
-            let existing_mod_author = existing_mod.attachement_data.author_id
-            let existing_mod_timestamp = existing_mod.attachement_data.timestamp
+            let existing_mod_author = existing_mod.attachment_data.author_id
+            let existing_mod_timestamp = existing_mod.attachment_data.timestamp
 
             if(existing_mod_author != mod_author){
                 //dont replace an existing mod with a mod from another author
@@ -85,7 +85,7 @@ class Modlist{
     async add_mod(mod_info,attachment_metadata){
         let new_mod = {
             data:mod_info,
-            attachement_data:attachment_metadata
+            attachment_data:attachment_metadata
         }
         let mod_id = sanitize_string(new_mod.data.id)
 

@@ -44,12 +44,12 @@ function remove_old_mods_regularly(every_x_seconds){
 
 async function refresh_all_mods() {
     try{
-        //get a list of all attachements in the mods channel
+        //get a list of all attachments in the mods channel
         let all_attachments = await bot.get_all_attachments_in_channel()
         console.log(`got list of all attachments`)
         let new_attachments = await download_new_attachments(all_attachments)
 
-        //iterate over each attachement and download it if we have not already got a copy in /mods
+        //iterate over each attachment and download it if we have not already got a copy in /mods
         await parse_attachments(new_attachments)
 
         await remove_mods_not_in_attachment_list(all_attachments)
@@ -111,7 +111,7 @@ async function list_attachments_to_be_deleted(attachment_list) {
 }
 
 async function download_new_attachments(attachments) {
-    //iterate over each attachement and download it if we have not already got a copy in /mods
+    //iterate over each attachment and download it if we have not already got a copy in /mods
     let new_attachments = []
     for (let attachment of attachments) {
         try{
@@ -138,10 +138,10 @@ async function download_new_attachments(attachments) {
 }
 
 async function parse_attachments(attachments) {
-    //parse each new attachement and add them to the modlist
+    //parse each new attachment and add them to the modlist
     for (let attachment of attachments) {
         try{
-            console.log('attachement', attachment)
+            console.log('attachment', attachment)
             let attachment_metadata = {
                 timestamp: attachment.timestamp,
                 discord_url: attachment.attachment,

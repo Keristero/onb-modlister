@@ -63,8 +63,8 @@ class ModNode{
             element:this?.data?.data?.detail?.props?.element ?
                 this?.data?.data?.detail?.props?.element : 
                 "None",
-            author_name:String(this?.data?.attachement_data?.author_name),
-            timestamp:parseInt(this?.data?.attachement_data?.timestamp),
+            author_name:String(this?.data?.attachment_data?.author_name),
+            timestamp:parseInt(this?.data?.attachment_data?.timestamp),
             damage:this?.data?.data?.detail?.props?.damage ? parseInt(this?.data?.data?.detail?.props?.damage) : 0
         }
     }
@@ -145,7 +145,7 @@ class ModNode{
         
     }
     get download_link(){
-        return this.data?.attachement_data?.discord_url
+        return this.data?.attachment_data?.discord_url
     }
     get description(){
         if(this.data?.data?.description){

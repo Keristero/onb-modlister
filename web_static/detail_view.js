@@ -6,16 +6,16 @@ class DetailView{
             'ID':(mod)=>{return mod.details.id},
             'Uploader':(mod)=>{return mod.details.author_name},
             'Thread':(mod)=>{
-                let thread_id = mod?.data?.attachement_data?.thread_id
-                let guild_id = mod?.data?.attachement_data?.guild_id
-                let attachment_id = mod?.data?.attachement_data?.attachment_id
+                let thread_id = mod?.data?.attachment_data?.thread_id
+                let guild_id = mod?.data?.attachment_data?.guild_id
+                let attachment_id = mod?.data?.attachment_data?.attachment_id
                 if(guild_id && thread_id && attachment_id){
                     return `<a href=discord://discord.com/channels/${guild_id}/${thread_id}/${attachment_id} target="_blank">Discord</a>
                     <a href=https://discord.com/channels/${guild_id}/${thread_id}/${attachment_id} target="_blank">Web</a>`
                 }
             },
             'Date':(mod)=>{
-                return new Date(mod?.data?.attachement_data?.timestamp).toLocaleDateString();
+                return new Date(mod?.data?.attachment_data?.timestamp).toLocaleDateString();
             },
             'Hash':(mod)=>{
                 return mod?.data?.data?.hash
