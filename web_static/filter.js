@@ -1,3 +1,5 @@
+import {history_manager} from './history_manager.js'
+
 const detail_filters = {
     any:{
         display_name:"Any"
@@ -38,6 +40,7 @@ const sort_options={
 
 class ModsFilter{
     constructor(){
+        this.options = {}
         this.create()
     }
     get_html_element(){
@@ -69,6 +72,7 @@ class ModsFilter{
                 let option = document.createElement('option')
                 option.value = field_name
                 option.textContent = field.display_name
+                this.options[field_name] = option
                 this.select.appendChild(option)
             }
 
@@ -78,9 +82,17 @@ class ModsFilter{
                 this.filter_changed_callback(filter_id,filter_value)
             }
         }
+        //If this filter should be selected by default
+        if(this.options[history_manager.state.fi]){
+            this.options[history_manager.state.fi].selected = true
+        }
         if(!this.input){
             this.input = document.createElement('input')
             this.element.appendChild(this.input)
+        }
+        //If this input should have some text in it by default
+        if(history_manager.state.fv){
+            this.input.value = history_manager.state.fv
         }
         this.input.oninput = ()=>{
             let filter_id = this.select.value
@@ -117,6 +129,7 @@ class ModsSorter extends ModsFilter{
                 let option = document.createElement('option')
                 option.value = field_name
                 option.textContent = field.display_name
+                this.options[field_name] = option
                 this.select.appendChild(option)
             }
 
@@ -124,6 +137,10 @@ class ModsSorter extends ModsFilter{
                 let select_value = this.select.value
                 this.selection_changed_callback(select_value)
             }
+        }
+        //If this filter should be selected by default
+        if(this.options[history_manager.state.si]){
+            this.options[history_manager.state.si].selected = true
         }
     }
 }

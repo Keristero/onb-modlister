@@ -1,6 +1,7 @@
 import {create_mod_node} from './mod_classes.js'
 import {ModsFilter,ModsSorter,detail_filters,sort_options} from './filter.js'
 import {downloadZip} from './libs/client-zip.js'
+import {history_manager} from './history_manager.js'
 
 const div_mods = document.getElementById('mods')
 const div_filters = document.getElementById('filters')
@@ -13,17 +14,24 @@ let sorter = new ModsSorter()
 div_filters.appendChild(filter.get_html_element())
 filter.filter_changed_callback = (filter_id,filter_value)=>{
     filter_mod_list(filter_id,filter_value)
+    console.log('filter selection changed to ',filter_id,filter_value)
 }
 div_filters.appendChild(sorter.get_html_element())
 sorter.selection_changed_callback = (sorter_id)=>{
     sort_mod_list(sorter_id)
+    console.log('sorter selection changed to ',sorter_id)
 }
 
 let mod_list = await get_mod_list()
 update_mod_nodes(mod_list, mod_nodes)
 render_mod_nodes(mod_nodes)
-filter_mod_list('any',"")
-sort_mod_list("timestamp")
+window.onpopstate = function(event) {
+    history_manager.load_state_from_url()
+    filter_mod_list(history_manager.filter_id,history_manager.filter_value)
+    filter.update()
+    sort_mod_list(history_manager.sorter_id)
+    sorter.update()
+}
 
 //create select all button
 let btn_select_all = document.createElement('button')
@@ -107,6 +115,7 @@ async function download_selected_mods() {
 }
 
 function sort_mod_list(sorter_id){
+    history_manager.update_sorter(sorter_id)
     let sorter = sort_options[sorter_id]
     let mod_node_keys = Object.keys(mod_nodes)
     let sort_func = function(a,b){
@@ -124,6 +133,7 @@ function sort_mod_list(sorter_id){
 }
 
 function filter_mod_list(filter_id,filter_value){
+    history_manager.update_filter(filter_id,filter_value)
     let filter_data = detail_filters[filter_id]
     //if no filter value is provided, search for wildcard
     if(filter_value == ""){
