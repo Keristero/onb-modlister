@@ -29,6 +29,7 @@ class Discordbot extends EventEmitter{
         return channels
     }
     async get_attachment_thread(attachment){
+        console.log(attachment)
         const channel = await this.client.channels.fetch(attachment.channel_id)
         const thread = await channel.threads.fetch(attachment.thread_id)
         return thread
@@ -79,7 +80,8 @@ class Discordbot extends EventEmitter{
             let fetched_active_threads = await channel.threads.fetchActive()
             if(!threads){
                 threads = fetched_active_threads.threads
-                console.log(threads)
+            }else{
+                threads = threads.concat(fetched_active_threads.threads)
             }
             
             while(fetched_active_threads.hasMore){
@@ -93,9 +95,12 @@ class Discordbot extends EventEmitter{
     async get_all_archived_threads(channels){
         let threads
         for(let channel of channels){
+            console.log(`getting archived threads in ${channel.name}`)
             let fetched_archived_threads = await channel.threads.fetchArchived()
             if(!threads){
                 threads = fetched_archived_threads.threads
+            }else{
+                threads = threads.concat(fetched_archived_threads.threads)
             }
             
             while(fetched_archived_threads.hasMore){
@@ -110,9 +115,9 @@ class Discordbot extends EventEmitter{
         const channels = await this.get_channels_by_ids(this.channel_ids)
         //fetch all threads from channel, active and inactive
         let threads = await this.get_all_active_threads(channels)
+        console.log('active threads',threads)
         let archived_threads = await this.get_all_archived_threads(channels)
         threads = threads.concat(archived_threads)
-        console.log(threads)
         console.log('fetched',threads.size,'threads')
         let attachments = await this.get_all_attachments_from_list_of_threads(threads)
         return attachments
@@ -155,6 +160,7 @@ class Discordbot extends EventEmitter{
                             attachment.author_id = message.author.id
                             attachment.message_id = message.id
                             attachment.thread_id = thread.id
+                            attachment.channel_id = thread.parentId
                             attachment.guild_id = message.guildId
                             //add attachment to list
                             attachments.push(attachment)
