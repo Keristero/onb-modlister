@@ -1,12 +1,12 @@
-const { DISCORD_TOKEN, MODS_CHANNEL_ID } = require('../environment')
+const { DISCORD_TOKEN, MODS_CHANNEL_ID ,SKINS_CHANNEL_ID} = require('../environment')
 const { Client, Intents, CommandInteractionOptionResolver, Collection} = require('discord.js');
 const EventEmitter = require('events');
 
 class Discordbot extends EventEmitter{
-    constructor(token,channel){
+    constructor(token,channel_ids){
         super()
         this.token = token
-        this.channel_id = channel
+        this.channel_ids = channel_ids
         this.client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS] });
         this.client.on('ready', () => {
             console.log(`Logged in as ${this.client.user.tag}!`);
@@ -17,8 +17,19 @@ class Discordbot extends EventEmitter{
         });
         this.client.login(DISCORD_TOKEN);
     }
+    async get_channels_by_ids(channel_ids){
+        /**
+         * takes an array of channel ids and returns an array of channels
+         */
+        let channels = []
+        for(let channel_id of channel_ids){
+            const channel = await this.client.channels.fetch(channel_id)
+            channels.push(channel)
+        }
+        return channels
+    }
     async get_attachment_thread(attachment){
-        const channel = await this.client.channels.fetch(this.channel_id)
+        const channel = await this.client.channels.fetch(attachment.channel_id)
         const thread = await channel.threads.fetch(attachment.thread_id)
         return thread
     }
@@ -48,11 +59,11 @@ class Discordbot extends EventEmitter{
         }
     }
     async poll_active_thread_attachments(every_x_seconds){
-        const channel = await this.client.channels.fetch(this.channel_id)
+        const channels = await this.get_channels_by_ids(this.channel_ids)
         setInterval(async()=>{
             try{
                 console.log('scanning active threads for new attachments...')
-                let threads = await this.get_all_active_threads(channel)
+                let threads = await this.get_all_active_threads(channels)
                 let attachments = await this.get_all_attachments_from_list_of_threads(threads)
                 if(attachments.length > 0){
                     this.emit('active_thread_attachments',attachments)
@@ -62,34 +73,46 @@ class Discordbot extends EventEmitter{
             }
         },every_x_seconds*1000)
     }
-    async get_all_active_threads(channel){
-        let fetched_active_threads = await channel.threads.fetchActive()
-        let threads = fetched_active_threads.threads
-        
-        while(fetched_active_threads.hasMore){
-            let options = {before:fetched_active_threads.threads.last()}
-            fetched_active_threads = await channel.threads.fetchActive(options)
-            threads = threads.concat(fetched_active_threads.threads)
+    async get_all_active_threads(channels){
+        let threads
+        for(let channel of channels){
+            let fetched_active_threads = await channel.threads.fetchActive()
+            if(!threads){
+                threads = fetched_active_threads.threads
+                console.log(threads)
+            }
+            
+            while(fetched_active_threads.hasMore){
+                let options = {before:fetched_active_threads.threads.last()}
+                fetched_active_threads = await channel.threads.fetchActive(options)
+                threads = threads.concat(fetched_active_threads.threads)
+            }
         }
         return threads
     }
-    async get_all_archived_threads(channel){
-        let fetched_archived_threads = await channel.threads.fetchArchived()
-        let threads = fetched_archived_threads.threads
-        
-        while(fetched_archived_threads.hasMore){
-            let options = {before:fetched_archived_threads.threads.last()}
-            fetched_archived_threads = await channel.threads.fetchArchived(options)
-            threads = threads.concat(fetched_archived_threads.threads)
+    async get_all_archived_threads(channels){
+        let threads
+        for(let channel of channels){
+            let fetched_archived_threads = await channel.threads.fetchArchived()
+            if(!threads){
+                threads = fetched_archived_threads.threads
+            }
+            
+            while(fetched_archived_threads.hasMore){
+                let options = {before:fetched_archived_threads.threads.last()}
+                fetched_archived_threads = await channel.threads.fetchArchived(options)
+                threads = threads.concat(fetched_archived_threads.threads)
+            }
         }
         return threads
     }
-    async get_all_attachments_in_channel(){
-        const channel = await this.client.channels.fetch(this.channel_id)
+    async get_all_attachments_in_channels(){
+        const channels = await this.get_channels_by_ids(this.channel_ids)
         //fetch all threads from channel, active and inactive
-        let threads = await this.get_all_active_threads(channel)
-        let archived_threads = await this.get_all_archived_threads(channel)
+        let threads = await this.get_all_active_threads(channels)
+        let archived_threads = await this.get_all_archived_threads(channels)
         threads = threads.concat(archived_threads)
+        console.log(threads)
         console.log('fetched',threads.size,'threads')
         let attachments = await this.get_all_attachments_from_list_of_threads(threads)
         return attachments
@@ -149,6 +172,6 @@ class Discordbot extends EventEmitter{
     }
 }
 
-const bot = new Discordbot(DISCORD_TOKEN,MODS_CHANNEL_ID)
+const bot = new Discordbot(DISCORD_TOKEN,[MODS_CHANNEL_ID,SKINS_CHANNEL_ID])
 
 module.exports = bot

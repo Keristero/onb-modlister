@@ -17,7 +17,8 @@ when you add a mod to a thread in the mods channel - the bot will check it out a
 1. display codes and elements ✅
 1. display mod details on right click, including link to discord thread ✅
 1. display damage ✅
-1. add rezipping and hash recording
+1. add rezipping and hash recording ✅
+1. scrape skins from the skins channel
 1. add alphabetical search
 1. scrape using .json definitions from the OBN docs, this will allow scraping of navi names and more ;)
-1. scrape skins from the skins channel
+1. add query params and page history, allows you to share a link with a filter+sort option prefilled.

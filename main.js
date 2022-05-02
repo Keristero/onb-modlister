@@ -5,11 +5,12 @@ const { file_exists, write_image_data_to_file } = require('./helpers.js')
 const { unlink, readdir } = require('fs/promises')
 
 const { scrape_package } = require('./package-scraper/package_scraper.js')
-const {zip_and_hash_package} = require('./zip_and_hash.js')
+const { zip_and_hash_package } = require('./zip_and_hash.js')
 const bot = require('./discord-bot/bot.js')
 const mod_list = require('./modlist.js')
 const modlist = require('./modlist.js')
 const webserver = require('./webserver.js')
+const { SKINS_CHANNEL_ID } = require('./environment')
 
 const mods_path = "mods/"
 const good_mod_emoji = "✅"
@@ -26,7 +27,7 @@ async function main() {
     await mod_list.load_modlist()
     await refresh_all_mods()
 
-    remove_old_mods_regularly(60*60)//every hour
+    remove_old_mods_regularly(60 * 60)//every hour
     await bot.poll_active_thread_attachments(60)//every minute
 
     bot.on('active_thread_attachments', async (attachments) => {
@@ -35,17 +36,17 @@ async function main() {
     })
 }
 
-function remove_old_mods_regularly(every_x_seconds){
-    setInterval(async()=>{
+function remove_old_mods_regularly(every_x_seconds) {
+    setInterval(async () => {
         console.log('comparing cached mods against all attachments...')
         await remove_any_old_mods()
-    },every_x_seconds*1000)
+    }, every_x_seconds * 1000)
 }
 
 async function refresh_all_mods() {
-    try{
+    try {
         //get a list of all attachments in the mods channel
-        let all_attachments = await bot.get_all_attachments_in_channel()
+        let all_attachments = await bot.get_all_attachments_in_channels()
         console.log(`got list of all attachments`)
         let new_attachments = await download_new_attachments(all_attachments)
 
@@ -53,46 +54,46 @@ async function refresh_all_mods() {
         await parse_attachments(new_attachments)
 
         await remove_mods_not_in_attachment_list(all_attachments)
-    }catch(e){
-        console.log(`failed refreshing all mods`,e)
+    } catch (e) {
+        console.log(`failed refreshing all mods`, e)
     }
 }
 
-async function remove_any_old_mods(){
-    try{
-        let all_attachments = await bot.get_all_attachments_in_channel()
+async function remove_any_old_mods() {
+    try {
+        let all_attachments = await bot.get_all_attachments_in_channels()
         await remove_mods_not_in_attachment_list(all_attachments)
-    }catch(e){
-        console.log(`failed removing old mods `,e)
+    } catch (e) {
+        console.log(`failed removing old mods `, e)
     }
 }
 
-async function remove_mods_not_in_attachment_list(all_attachments){
+async function remove_mods_not_in_attachment_list(all_attachments) {
     let attachments_to_delete = await list_attachments_to_be_deleted(all_attachments)
-    console.log('attachments to delete',attachments_to_delete)
-    for(let attachment_id of attachments_to_delete){
+    console.log('attachments to delete', attachments_to_delete)
+    for (let attachment_id of attachments_to_delete) {
         await modlist.remove_mod_by_attachment_id(attachment_id)
         await unlink(resolve(`${mods_path}/${attachment_id}.zip`))
     }
-    console.log('deleted mods',attachments_to_delete)
+    console.log('deleted mods', attachments_to_delete)
 }
 
 async function list_attachments_to_be_deleted(attachment_list) {
-    try{
+    try {
         const mods_path_files = await readdir(mods_path);
 
         //filter out any non zip files
-        const cached_mods = mods_path_files.filter((file_name)=>{
-            if(file_name.includes(".zip")){
+        const cached_mods = mods_path_files.filter((file_name) => {
+            if (file_name.includes(".zip")) {
                 return true
             }
             return false
         })
 
         //filter out all mods that appear in the attachment list
-        const deleted_mods = cached_mods.filter((file_name)=>{
-            for(attachment of attachment_list){
-                if(file_name.includes(attachment.id)){
+        const deleted_mods = cached_mods.filter((file_name) => {
+            for (attachment of attachment_list) {
+                if (file_name.includes(attachment.id)) {
                     return false
                 }
             }
@@ -100,12 +101,12 @@ async function list_attachments_to_be_deleted(attachment_list) {
         })
 
         //remove .zip from the path to get the attachment id
-        const deleted_attachments = deleted_mods.map((value)=>{
+        const deleted_attachments = deleted_mods.map((value) => {
             return value.split('.')[0]
         })
 
         return deleted_attachments
-    } catch(err) {
+    } catch (err) {
         console.error(err);
     }
 }
@@ -114,7 +115,7 @@ async function download_new_attachments(attachments) {
     //iterate over each attachment and download it if we have not already got a copy in /mods
     let new_attachments = []
     for (let attachment of attachments) {
-        try{
+        try {
             if (attachment.contentType != 'application/zip') {
                 //skip non zip attachments
                 continue
@@ -130,8 +131,8 @@ async function download_new_attachments(attachments) {
             console.log(`successfully downloaded ${attachment.name}`)
             //add any newly downloaded attachments to a list for parsing
             new_attachments.push(attachment)
-        }catch(e){
-            console.log(`error downloading file `,e)
+        } catch (e) {
+            console.log(`error downloading file `, e)
         }
     }
     return new_attachments
@@ -140,7 +141,7 @@ async function download_new_attachments(attachments) {
 async function parse_attachments(attachments) {
     //parse each new attachment and add them to the modlist
     for (let attachment of attachments) {
-        try{
+        try {
             console.log('attachment', attachment)
             let attachment_metadata = {
                 timestamp: attachment.timestamp,
@@ -150,39 +151,47 @@ async function parse_attachments(attachments) {
                 original_filename: attachment.name,
                 attachment_id: attachment.id,
                 thread_id: attachment.thread_id,
+                channel_id: attachment.channel_id,
                 guild_id: attachment.guild_id
             }
-            let mod_info = await parse_mod_info(attachment.path)
-            if (!mod_info) {
-                console.log(`UNABLE TO PARSE MOD`, attachment)
-                await bot.react_to_attachment_message(attachment, bad_mod_emoji)
-                continue
-            }
-            console.log(mod_info)
-    
-            let validity = await modlist.test_mod_update_validity(mod_info,attachment_metadata)
-            if (validity == 'valid') {
-                //zip and hash the package using the game client
-                let client_res = await zip_and_hash_package(attachment.path, mod_info)
-                mod_info.hash = client_res.hash
-                //save images from mod_info to disk for previewing
-                if (mod_info?.detail?.icon) {
-                    let image_path = await write_image_data_to_file(`./images`, `${mod_info.id}_icon`, 'png', mod_info.detail.icon)
-                    mod_info.detail.icon = image_path
+            let is_a_client_skin = attachment.channel_id == SKINS_CHANNEL_ID
+
+            if (is_a_client_skin) {
+                //TODO handle skins
+                console.log('found a skin attachment',attachment)
+            } else {
+                let mod_info = await parse_mod_info(attachment.path)
+                if (!mod_info) {
+                    console.log(`UNABLE TO PARSE MOD`, attachment)
+                    await bot.react_to_attachment_message(attachment, bad_mod_emoji)
+                    continue
                 }
-                if (mod_info?.detail?.preview) {
-                    let image_path = await write_image_data_to_file(`./images`, `${mod_info.id}_preview`, 'png', mod_info.detail.preview)
-                    mod_info.detail.preview = image_path
+                console.log(mod_info)
+
+                let validity = await modlist.test_mod_update_validity(mod_info, attachment_metadata)
+                if (validity == 'valid') {
+                    //zip and hash the package using the game client
+                    let client_res = await zip_and_hash_package(attachment.path, mod_info)
+                    mod_info.hash = client_res.hash
+                    //save images from mod_info to disk for previewing
+                    if (mod_info?.detail?.icon) {
+                        let image_path = await write_image_data_to_file(`./images`, `${mod_info.id}_icon`, 'png', mod_info.detail.icon)
+                        mod_info.detail.icon = image_path
+                    }
+                    if (mod_info?.detail?.preview) {
+                        let image_path = await write_image_data_to_file(`./images`, `${mod_info.id}_preview`, 'png', mod_info.detail.preview)
+                        mod_info.detail.preview = image_path
+                    }
+                    await modlist.add_mod(mod_info, attachment_metadata)
+                    await bot.react_to_attachment_message(attachment, good_mod_emoji)
+                } else if (validity == 'author') {
+                    await bot.react_to_attachment_message(attachment, wrong_author_emoji)
+                } else if (validity == 'old') {
+                    await bot.react_to_attachment_message(attachment, archived_mod_emoji)
                 }
-                await modlist.add_mod(mod_info, attachment_metadata)
-                await bot.react_to_attachment_message(attachment, good_mod_emoji)
-            }else if(validity == 'author') {
-                await bot.react_to_attachment_message(attachment, wrong_author_emoji)
-            }else if(validity == 'old'){
-                await bot.react_to_attachment_message(attachment, archived_mod_emoji)
             }
-        }catch(e){
-            console.log(`error parsing atachment`,e)
+        } catch (e) {
+            console.log(`error parsing atachment`, e)
         }
     }
 }
