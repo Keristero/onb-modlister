@@ -178,6 +178,9 @@ button{
     text-shadow: 2px 2px 0px rgb(0, 0, 0);
     background-color: rgba(0, 0, 0, 0);
 }
+.skin_preview{
+    height:128px;
+}
 .player_preview{
     height:128px;
     filter: drop-shadow(0px 0px 25px rgb(255, 255, 255));
@@ -211,6 +214,9 @@ button{
 /* na */
 .enemy_node{
     background-color:rgba(255, 0, 0, 0.26);
+}
+.skin_node{
+    background-color:rgba(17, 255, 0, 0.299);
 }
 
 /* card class backgrounds */

@@ -7,6 +7,8 @@ function create_mod_node(mod_id,mod_data){
         return new PlayerNode(mod_id,mod_data)
     }else if(mod_data.data.type == "enemies"){
         return new EnemyNode(mod_id,mod_data)
+    }else if(mod_data.data.type == "skins"){
+        return new SkinNode(mod_id,mod_data)
     }else if(mod_data.data.type == "blocks"){
         return new BlockNode(mod_id,mod_data)
     }else{
@@ -57,7 +59,7 @@ class ModNode{
                     "standard"
                 :null),
             id:String(this?.data?.data?.id),
-            card_code:this.data.data.detail.codes ? 
+            card_code:this?.data?.data?.detail?.codes ? 
                 this.data.data.detail.codes.map((value)=>{
                 return String(value)}) : "",
             element:this?.data?.data?.detail?.props?.element ?
@@ -270,6 +272,25 @@ class PlayerNode extends ModNode{
             this.preview_window.appendChild(this.player_preview)
         }
         this.player_preview.src = this.preview_link
+    }
+}
+
+class SkinNode extends ModNode{
+    constructor(mod_id,mod_data){
+        super(mod_id,mod_data)
+    }
+    update(latest_mod_data){
+        super.update(latest_mod_data)
+        if(!this.skin_preview){
+            this.skin_preview = document.createElement('img')
+            this.skin_preview.classList.add("skin_preview")
+            this.preview_window.appendChild(this.skin_preview)
+        }
+        let screenshots = this?.data?.data?.screenshots
+        if(screenshots){
+            this.skin_preview.src = screenshots[0]
+        }
+        this.element.classList.add('skin_node')
     }
 }
 

@@ -14,8 +14,9 @@ class Modlist{
         this.has_changed_since_last_get_all = true
     }
     get_mod_by_id(mod_id){
-        if(this.modlist[mod_id]){
-            return this.modlist[mod_id]
+        let sane_id = sanitize_string(mod_id)
+        if(this.modlist[sane_id]){
+            return this.modlist[sane_id]
         }
         return null
     }

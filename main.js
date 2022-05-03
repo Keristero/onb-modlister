@@ -10,8 +10,9 @@ const bot = require('./discord-bot/bot.js')
 const mod_list = require('./modlist.js')
 const modlist = require('./modlist.js')
 const webserver = require('./webserver.js')
-const { SKINS_CHANNEL_ID } = require('./environment')
+const { SKINS_CHANNEL_ID, MODS_CHANNEL_ID } = require('./environment')
 
+const images_path = "./images"
 const mods_path = "mods/"
 const good_mod_emoji = "✅"
 const bad_mod_emoji = "❌"
@@ -116,11 +117,18 @@ async function download_new_attachments(attachments) {
     let new_attachments = []
     for (let attachment of attachments) {
         try {
-            if (attachment.contentType != 'application/zip') {
+            let attachment_type = identify_attachment_type(attachment)
+            if (attachment_type == "unknown") {
                 //skip non zip attachments
                 continue
             }
-            attachment.path = resolve(`${join(mods_path, attachment.id)}.zip`)
+            if(attachment_type == "skin_screenshot"){
+                attachment.path = `${join(images_path, attachment.id)}.png`
+            }
+            if(attachment_type == "mod" || attachment_type == "skin"){
+                attachment.path = resolve(`${join(mods_path, attachment.id)}.zip`)
+            }
+
             let already_downloaded = await file_exists(attachment.path)
             if (already_downloaded) {
                 //skip already downloaded attachments
@@ -129,7 +137,6 @@ async function download_new_attachments(attachments) {
             console.log(`started downloading ${attachment.name}`)
             await download(attachment.url, attachment.path)
             console.log(`successfully downloaded ${attachment.name}`)
-            //add any newly downloaded attachments to a list for parsing
             new_attachments.push(attachment)
         } catch (e) {
             console.log(`error downloading file `, e)
@@ -139,6 +146,15 @@ async function download_new_attachments(attachments) {
 }
 
 async function parse_attachments(attachments) {
+    //Sort new attachments so that screenshots will be processed last
+    attachments.sort((a,b)=>{
+        let type = identify_attachment_type(a)
+        if(type == "skin_screenshot"){
+            return 1
+        }else{
+            return -1
+        }
+    })
     //parse each new attachment and add them to the modlist
     for (let attachment of attachments) {
         try {
@@ -154,12 +170,16 @@ async function parse_attachments(attachments) {
                 channel_id: attachment.channel_id,
                 guild_id: attachment.guild_id
             }
-            let is_a_client_skin = attachment.channel_id == SKINS_CHANNEL_ID
+            let attachment_type = identify_attachment_type(attachment)
 
-            if (is_a_client_skin) {
-                //TODO handle skins
-                console.log('found a skin attachment',attachment)
-            } else {
+            if (attachment_type == "skin") {
+                let mod_info = await parse_skin_info(attachment,attachment_metadata)
+                await modlist.add_mod(mod_info, attachment_metadata)
+
+            }else if(attachment_type == "skin_screenshot"){
+                await add_screenshot_to_skin(attachment)
+            }
+            else if(attachment_type == "mod"){
                 let mod_info = await parse_mod_info(attachment.path)
                 if (!mod_info) {
                     console.log(`UNABLE TO PARSE MOD`, attachment)
@@ -196,6 +216,24 @@ async function parse_attachments(attachments) {
     }
 }
 
+function identify_attachment_type(attachment){
+    let type = "unknown"
+    if(attachment.channel_id == SKINS_CHANNEL_ID){
+        if(attachment.contentType == 'application/zip'){
+            type = 'skin'
+        }
+        if(attachment.contentType == 'image/png'){
+            type = 'skin_screenshot'
+        }
+    }
+    if(attachment.channel_id == MODS_CHANNEL_ID){
+        if(attachment.contentType == 'application/zip'){
+            type = 'mod'
+        }
+    }
+    return type
+}
+
 function download(url, destination_file) {
     return new Promise((resolve, reject) => {
         let file = createWriteStream(destination_file, { flags: 'w' });
@@ -210,6 +248,37 @@ function download(url, destination_file) {
         });
     })
 };
+
+async function add_screenshot_to_skin(image_attachment){
+    let skin_id = image_attachment.thread_id
+    let skin_info = mod_list.get_mod_by_id(skin_id)
+    if(!skin_info || skin_info.data.type != "skins"){
+        return
+    }
+    if(image_attachment.author_id != skin_info.attachment_data.author_id){
+        return
+    }
+    skin_info.data.screenshots.push(image_attachment.path)
+    mod_list.add_mod(skin_info.data,skin_info.attachment_data)
+    console.log('associated new screenshot to skin')
+}
+
+async function parse_skin_info(attachment,attachment_metadata){
+    let new_skin_id = attachment_metadata.thread_id //since there is no user defined mod id.
+    let attachment_thread = await bot.get_attachment_thread(attachment)
+    let all_thread_messages = await bot.get_all_messages_in_thread(attachment_thread)
+    let first_message = all_thread_messages[all_thread_messages.length-1]
+    let data = {
+        type:"skins",
+        name:attachment_thread.name,
+        id:new_skin_id,
+        description:first_message.content.slice(0,Math.min(50,first_message.content.length)),
+        discord_url: attachment.attachment,
+        screenshots:[]
+    }
+    console.log('skin info',data)
+    return data
+}
 
 async function parse_mod_info(package_path) {
     try {

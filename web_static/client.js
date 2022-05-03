@@ -10,6 +10,7 @@ let selection_changed_timeout;
 //filter_fields is defined in filter.js
 let filter = new ModsFilter()
 let sorter = new ModsSorter()
+let user_has_been_warned_about_skin_installs = false
 
 div_filters.appendChild(filter.get_html_element())
 filter.filter_changed_callback = (filter_id,filter_value)=>{
@@ -93,6 +94,12 @@ async function download_selected_mods() {
     // define what we want in the ZIP
     let zip_entries = []
     for(let mod_node of selected_mod_nodes){
+        if(mod_node.data.data.type == "skins"){
+            if(!user_has_been_warned_about_skin_installs){
+                window.alert('You have selected a user interface skin to download, you will need to extract the skin to install it.')
+                user_has_been_warned_about_skin_installs = true
+            }
+        }
         let local_url = `/mods/${mod_node.data.attachment_data.attachment_id}.zip`
         let response = await fetch(new Request(local_url))
         let zip_entry = { name: `${mod_node.data.data.type}/${mod_node.id}.zip`, lastModified: new Date(), input:response }
