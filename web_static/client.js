@@ -91,6 +91,7 @@ async function download_selected_mods() {
     if(selected_mod_nodes.length == 0){
         return
     }
+    let initial_selection_size = selected_mod_nodes.length
     // define what we want in the ZIP
     let zip_entries = []
     for(let mod_node of selected_mod_nodes){
@@ -104,6 +105,7 @@ async function download_selected_mods() {
         let response = await fetch(new Request(local_url))
         let zip_entry = { name: `${mod_node.data.data.type}/${mod_node.id}.zip`, lastModified: new Date(), input:response }
         zip_entries.push(zip_entry)
+        btn_download_selected.textContent = `Downloading (${zip_entries.length}/${initial_selection_size})`
     }
   
     // get the ZIP stream in a Blob
