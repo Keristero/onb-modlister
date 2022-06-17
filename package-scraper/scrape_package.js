@@ -4,7 +4,7 @@ const { normalize: normalizePath, dirname, normalize } = require("path");
 const {readFile} = require('fs/promises')
 const {parentPort, workerData} = require('worker_threads');
 
-const max_memory = 200000
+const max_memory = 1000000
 const banned_libs = ['io', 'os', 'coroutine', 'string', 'utf8', 'debug', 'package']
 
 const luaFactory = new LuaFactory();
