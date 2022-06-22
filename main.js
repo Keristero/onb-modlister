@@ -26,7 +26,12 @@ bot.on('ready', () => {
 async function main() {
     //load existing list of mods from json file
     await mod_list.load_modlist()
-    await refresh_all_mods()
+    try{
+        await refresh_all_mods()
+
+    }catch(e){
+        console.log('failed to refresh mods at startup, continuing anyway...')
+    }
 
     remove_old_mods_regularly(60 * 60)//every hour
     await bot.poll_active_thread_attachments(60)//every minute

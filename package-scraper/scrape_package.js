@@ -365,4 +365,5 @@ function disableScaryThings(lua) {
     lua.global.set("dofile", "")
     lua.global.set("loadfile", "")
     lua.global.set("loadstring", "")
+    lua.global.set("load", "")
 }
