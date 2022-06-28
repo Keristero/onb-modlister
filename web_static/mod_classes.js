@@ -85,7 +85,6 @@ class ModNode{
             damage:this?.data?.data?.detail?.props?.damage ? parseInt(this?.data?.data?.detail?.props?.damage) : 0,
             tags:this?.data?.attachment_data?.thread_name ? regex_groups_to_array(/\[([^\[\]]*)\]/gm,this.data.attachment_data.thread_name,"|") : []
         }
-        console.log(this.card_class)
         //Construct a string with all other details, used for searching all details at once
         let any_search_string = ""
         for(let key in this.details){
