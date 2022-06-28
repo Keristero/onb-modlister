@@ -172,6 +172,7 @@ async function parse_attachments(attachments) {
                 original_filename: attachment.name,
                 attachment_id: attachment.id,
                 thread_id: attachment.thread_id,
+                thread_name: attachment.thread_name,
                 channel_id: attachment.channel_id,
                 guild_id: attachment.guild_id
             }

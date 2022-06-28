@@ -160,6 +160,7 @@ class Discordbot extends EventEmitter{
                             attachment.author_id = message.author.id
                             attachment.message_id = message.id
                             attachment.thread_id = thread.id
+                            attachment.thread_name = thread.name
                             attachment.channel_id = thread.parentId
                             attachment.guild_id = message.guildId
                             //add attachment to list

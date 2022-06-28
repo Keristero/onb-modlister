@@ -19,6 +19,13 @@ class DetailView{
             },
             'Hash':(mod)=>{
                 return mod?.data?.data?.hash
+            },
+            'Tags':(mod)=>{
+                let tag_div = ``
+                for(let tag of mod.details.tags){
+                    tag_div+= `[${tag}] `
+                }
+                return tag_div
             }
         }
     }

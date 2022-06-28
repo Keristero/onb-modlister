@@ -23,6 +23,9 @@ const detail_filters = {
     author_name:{
         display_name:"Author",
     },
+    tags:{
+        display_name:"Tags",
+    },
 }
 
 const sort_options={

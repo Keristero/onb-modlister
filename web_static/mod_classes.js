@@ -16,6 +16,21 @@ function create_mod_node(mod_id,mod_data){
     }
 }
 
+function regex_groups_to_array(reg_exp,string,seperator){
+    let res = []
+    let match = reg_exp.exec(string)
+    while(match !== null) {
+        if(seperator){
+            let split = match[1].split(seperator)
+            res.push(...split)
+        }else{
+            res.push(match[1])
+        }
+        match = reg_exp.exec(string);
+    }
+    return res
+}
+
 class ModNode{
     constructor(mod_id,mod_data){
         this.id = mod_id
@@ -67,8 +82,11 @@ class ModNode{
                 "None",
             author_name:String(this?.data?.attachment_data?.author_name),
             timestamp:parseInt(this?.data?.attachment_data?.timestamp),
-            damage:this?.data?.data?.detail?.props?.damage ? parseInt(this?.data?.data?.detail?.props?.damage) : 0
+            damage:this?.data?.data?.detail?.props?.damage ? parseInt(this?.data?.data?.detail?.props?.damage) : 0,
+            tags:this?.data?.attachment_data?.thread_name ? regex_groups_to_array(/\[([^\[\]]*)\]/gm,this.data.attachment_data.thread_name,"|") : []
         }
+        console.log(this?.data?.attachment_data)
+        console.log(this.details)
     }
     set_hidden(should_be_hidden){
         if(should_be_hidden && !this.hidden){
