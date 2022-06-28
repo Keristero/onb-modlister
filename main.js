@@ -20,6 +20,11 @@ const wrong_author_emoji = "🔒"
 const archived_mod_emoji = "📁"
 
 bot.on('ready', async() => {
+    try{
+        await refresh_all_mods()
+    }catch(e){
+        console.log('failed to refresh mods at startup, continuing anyway...')
+    }
     remove_old_mods_regularly(60 * 60)//every hour
     await bot.poll_active_thread_attachments(60)//every minute
 
@@ -35,12 +40,6 @@ main()
 async function main() {
     //load existing list of mods from json file
     await mod_list.load_modlist()
-    try{
-        await refresh_all_mods()
-
-    }catch(e){
-        console.log('failed to refresh mods at startup, continuing anyway...')
-    }
 }
 
 function remove_old_mods_regularly(every_x_seconds) {

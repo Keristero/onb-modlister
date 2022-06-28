@@ -206,7 +206,6 @@ function modnode_selection_changed_callback(){
     //recaucluate the list after a short delay, if we call this multiple times in quick succession it will still only run once 
     clearTimeout(selection_changed_timeout)
     selection_changed_timeout = setTimeout(()=>{
-        console.log('counting selected mods')
         let selected_mods = list_selected_mods()
         if(selected_mods.length == 0){
             btn_clear_selection.style.display = "none"
