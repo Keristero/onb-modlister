@@ -99,8 +99,11 @@ async function download_selected_mods() {
             if(!user_has_been_warned_about_skin_installs){
                 window.alert('You have selected a user interface skin to download, you will need to extract the skin to install it.')
                 user_has_been_warned_about_skin_installs = true
+                break
             }
         }
+    }
+    for(let mod_node of selected_mod_nodes){
         let local_url = `/mods/${mod_node.data.attachment_data.attachment_id}.zip`
         let response = await fetch(new Request(local_url))
         let zip_entry = { name: `${mod_node.data.data.type}/${mod_node.id}.zip`, lastModified: new Date(), input:response }
