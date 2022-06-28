@@ -19,9 +19,18 @@ const bad_mod_emoji = "❌"
 const wrong_author_emoji = "🔒"
 const archived_mod_emoji = "📁"
 
-bot.on('ready', () => {
-    main()
+bot.on('ready', async() => {
+    remove_old_mods_regularly(60 * 60)//every hour
+    await bot.poll_active_thread_attachments(60)//every minute
+
+    bot.on('active_thread_attachments', async (attachments) => {
+        let new_attachments = await download_new_attachments(attachments)
+        await parse_attachments(new_attachments)
+    })
 })
+
+main()
+
 
 async function main() {
     //load existing list of mods from json file
@@ -32,14 +41,6 @@ async function main() {
     }catch(e){
         console.log('failed to refresh mods at startup, continuing anyway...')
     }
-
-    remove_old_mods_regularly(60 * 60)//every hour
-    await bot.poll_active_thread_attachments(60)//every minute
-
-    bot.on('active_thread_attachments', async (attachments) => {
-        let new_attachments = await download_new_attachments(attachments)
-        await parse_attachments(new_attachments)
-    })
 }
 
 function remove_old_mods_regularly(every_x_seconds) {

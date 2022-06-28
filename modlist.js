@@ -11,6 +11,7 @@ class Modlist{
         json_lock.enable()
         this.modlist = await open_json(modlist_json_path)
         json_lock.disable()
+        console.log(`loaded mod list ${Object.keys(this.modlist).length} mods`)
         this.has_changed_since_last_get_all = true
     }
     get_mod_by_id(mod_id){
