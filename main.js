@@ -1,7 +1,7 @@
 const https = require('https'); // or 'https' for https:// URLs
 const { createWriteStream, fstat } = require('fs')
 const { resolve, parse, join } = require('path')
-const { file_exists, write_image_data_to_file } = require('./helpers.js')
+const { file_exists, write_image_data_to_file_compressed } = require('./helpers.js')
 const { unlink, readdir } = require('fs/promises')
 
 const { scrape_package } = require('./package-scraper/package_scraper.js')
@@ -200,11 +200,11 @@ async function parse_attachments(attachments) {
                     mod_info.hash = client_res.hash
                     //save images from mod_info to disk for previewing
                     if (mod_info?.detail?.icon) {
-                        let image_path = await write_image_data_to_file(`./images`, `${mod_info.id}_icon`, 'png', mod_info.detail.icon)
+                        let image_path = await write_image_data_to_file_compressed(`./images`, `${mod_info.id}_icon`, 'png', mod_info.detail.icon)
                         mod_info.detail.icon = image_path
                     }
                     if (mod_info?.detail?.preview) {
-                        let image_path = await write_image_data_to_file(`./images`, `${mod_info.id}_preview`, 'png', mod_info.detail.preview)
+                        let image_path = await write_image_data_to_file_compressed(`./images`, `${mod_info.id}_preview`, 'png', mod_info.detail.preview)
                         mod_info.detail.preview = image_path
                     }
                     await modlist.add_mod(mod_info, attachment_metadata)

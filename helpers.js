@@ -2,6 +2,7 @@ const { access } = require('fs/promises')
 const { constants } = require('fs')
 const { readFile, writeFile ,unlink} = require('fs/promises')
 const { join } = require('path')
+const jspngopt = require("jspngopt");
 
 async function file_exists(file_path) {
     try {
@@ -37,6 +38,19 @@ async function write_image_data_to_file(folder_path, file_name, extension, image
     return file_path
 }
 
+async function write_image_data_to_file_compressed(folder_path, file_name, extension, image_data) {
+    var opt = new jspngopt.Optimizer();
+    let safe_filename = sanitize_string(file_name)
+    let file_path = `${join(folder_path, safe_filename)}.${extension}`
+    if(await file_exists(file_path)){
+        await unlink(file_path)
+    }
+    let optimized = opt.bufferSync(Buffer.from(image_data));
+    await writeFile(file_path, optimized)
+    console.log('wrote file',file_path)
+    return file_path
+}
+
 async function save_to_json(json_path, data) {
     let empty_json_string = JSON.stringify(data)
     await writeFile(json_path, empty_json_string)
@@ -57,4 +71,4 @@ class AsyncLock {
     }
 }
 
-module.exports = { file_exists, open_json, save_to_json, write_image_data_to_file, sanitize_string ,AsyncLock}
+module.exports = { file_exists, open_json, save_to_json, write_image_data_to_file, sanitize_string ,AsyncLock, write_image_data_to_file_compressed}

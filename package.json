@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "discord.js": "^13.8.1",
+    "express": "^4.18.1",
+    "jspngopt": "^0.2.0",
+    "jszip": "^3.10.0",
+    "wasmoon": "^1.13.0"
+  }
+}
