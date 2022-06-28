@@ -1,5 +1,5 @@
 import {create_mod_node} from './mod_classes.js'
-import {ModsFilter,ModsSorter,detail_filters,sort_options} from './filter.js'
+import {ModsFilter,ModsSorter,detail_filters,sort_options,search_aliases} from './filter.js'
 import {downloadZip} from './libs/client-zip.js'
 import {hide_detail_view} from './detail_view.js'
 
@@ -141,17 +141,19 @@ function sort_mod_list(sorter_id){
 function filter_mod_list(filter_id,filter_value){
     let filter_data = detail_filters[filter_id]
     //if no filter value is provided, search for wildcard
+    filter_value = filter_value.toLowerCase()
     if(filter_value == ""){
         filter_value = "."
     }
+    for(let alias_array of search_aliases){
+        if(alias_array.includes(filter_value)){
+            filter_value = alias_array.join("|")
+            console.log("repalced filter with",filter_value)
+        }
+    }
     let filterRegexp = new RegExp(filter_value,'gi')
     //make a list of all the detail keys to filter against
-    let filter_ids;
-    if(filter_data.display_name == "Any"){
-        filter_ids = Object.keys(detail_filters)
-    }else{
-        filter_ids = [filter_id]
-    }
+    let filter_ids = [filter_id]
     //check if each mod should be hidden by comparing the filter_value to the details
     let matches = 0
     for(let mod_id in mod_nodes){

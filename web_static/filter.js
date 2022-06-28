@@ -39,6 +39,20 @@ const sort_options={
     },
 }
 
+const search_aliases = [
+    ["exe1","bn1"],
+    ["exe2","bn2"],
+    ["exe3","bn3"],
+    ["exe4","bn4"],
+    ["exe4.5","bn4.5"],
+    ["exe5","bn5"],
+    ["exe6","bn6"],
+    ["genso","shanghai"],
+    ["enemy","enemies"],
+    ["navi","player"],
+    ["block","ncp"]
+]
+
 class ModsFilter{
     constructor(){
         this.create()
@@ -131,4 +145,4 @@ class ModsSorter extends ModsFilter{
     }
 }
 
-export {ModsFilter,ModsSorter,detail_filters,sort_options}
+export {ModsFilter,ModsSorter,detail_filters,sort_options,search_aliases}

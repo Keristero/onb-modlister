@@ -68,23 +68,40 @@ class ModNode{
         this.details = {
             name:String(this.name),
             type:String(this?.data?.data?.type),
-            card_class:String(this.data.data.type == "card" ?
-                this.data.data.detail.props.card_class ?
-                    this.data.data.detail.props.card_class : 
+            card_class:this.data.data.type == "cards" ?
+                this.card_class ?
+                    this.card_class : 
                     "standard"
-                :null),
+                :null,
             id:String(this?.data?.data?.id),
             card_code:this?.data?.data?.detail?.codes ? 
                 this.data.data.detail.codes.map((value)=>{
                 return String(value)}) : "",
-            element:this?.data?.data?.detail?.props?.element ?
-                this?.data?.data?.detail?.props?.element : 
+            element:this.chip_element ?
+                this.chip_element : 
                 "None",
             author_name:String(this?.data?.attachment_data?.author_name),
             timestamp:parseInt(this?.data?.attachment_data?.timestamp),
             damage:this?.data?.data?.detail?.props?.damage ? parseInt(this?.data?.data?.detail?.props?.damage) : 0,
             tags:this?.data?.attachment_data?.thread_name ? regex_groups_to_array(/\[([^\[\]]*)\]/gm,this.data.attachment_data.thread_name,"|") : []
         }
+        console.log(this.card_class)
+        //Construct a string with all other details, used for searching all details at once
+        let any_search_string = ""
+        for(let key in this.details){
+            let value = this.details[key]
+            if(value == "" || value == null){
+                continue
+            }
+            if(Array.isArray(value)){
+                for(let item of value){
+                    any_search_string += (item+" ")
+                }
+            }else{
+                any_search_string += (value+" ")
+            }
+        }
+        this.details.any = any_search_string
     }
     set_hidden(should_be_hidden){
         if(should_be_hidden && !this.hidden){
