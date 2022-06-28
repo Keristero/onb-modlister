@@ -85,8 +85,6 @@ class ModNode{
             damage:this?.data?.data?.detail?.props?.damage ? parseInt(this?.data?.data?.detail?.props?.damage) : 0,
             tags:this?.data?.attachment_data?.thread_name ? regex_groups_to_array(/\[([^\[\]]*)\]/gm,this.data.attachment_data.thread_name,"|") : []
         }
-        console.log(this?.data?.attachment_data)
-        console.log(this.details)
     }
     set_hidden(should_be_hidden){
         if(should_be_hidden && !this.hidden){
