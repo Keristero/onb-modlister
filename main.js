@@ -201,12 +201,20 @@ async function parse_attachments(attachments) {
                     mod_info.hash = client_res.hash
                     //save images from mod_info to disk for previewing
                     if (mod_info?.detail?.icon) {
-                        let image_path = await write_image_data_to_file_compressed(`./images`, `${mod_info.id}_icon`, 'png', mod_info.detail.icon)
-                        mod_info.detail.icon = image_path
+                        try{
+                            let image_path = await write_image_data_to_file_compressed(`./images`, `${mod_info.id}_icon`, 'png', mod_info.detail.icon)
+                            mod_info.detail.icon = image_path
+                        }catch(e){
+                            console.log('unable to compress image',image_path)
+                        }
                     }
                     if (mod_info?.detail?.preview) {
-                        let image_path = await write_image_data_to_file_compressed(`./images`, `${mod_info.id}_preview`, 'png', mod_info.detail.preview)
-                        mod_info.detail.preview = image_path
+                        try{
+                            let image_path = await write_image_data_to_file_compressed(`./images`, `${mod_info.id}_preview`, 'png', mod_info.detail.preview)
+                            mod_info.detail.preview = image_path
+                        }catch(e){
+                            console.log('unable to compress image',image_path)
+                        }
                     }
                     await modlist.add_mod(mod_info, attachment_metadata)
                     await bot.react_to_attachment_message(attachment, good_mod_emoji)
