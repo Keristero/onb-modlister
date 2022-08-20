@@ -1,5 +1,5 @@
 <template>
-    <li class="bounce_fx">
+    <li class="">
         <div class="chip-box">
             <div class="ct-curve"></div>
             <div class="game-pic">
