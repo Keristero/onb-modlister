@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express()
-const modlist = require('./modlist.js')
-const {PORT} = require('./environment.js')
+const modlist = require('../src/libs/modlist.js')
+const {PORT} = require('../src/libs/environment.js')
 
 const cache_images_options = {
     etag: true,

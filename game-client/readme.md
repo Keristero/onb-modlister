@@ -1,2 +1,2 @@
-add a build of the ONB game client here, folder name
-executable at path /game-client/Release/BattleNetwork
+⚠️ You must add a build of the ONB game client here! ⚠️
+The executable must be at path `/game-client/Release/BattleNetwork.exe`

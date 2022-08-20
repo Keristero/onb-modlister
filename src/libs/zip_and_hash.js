@@ -16,6 +16,8 @@ async function clear_client_mods() {
     }
 }
 
+// unused
+/*
 async function ensure_dir_exists(filePath) {
     var dirname = path.dirname(filePath);
     try{
@@ -27,7 +29,7 @@ async function ensure_dir_exists(filePath) {
     }
     await mkdir(dirname)
     return true
-}
+} */
 
 async function zip_and_hash_package(attachment_path, mod_info) {
     console.log('clearing client mods')
@@ -48,10 +50,10 @@ async function zip_and_hash_package(attachment_path, mod_info) {
 }
 
 function launch_client_zip_and_hash() {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, _reject) => {
         let launch_command = `BattleNetwork.exe -i`
         let hash_and_package_regex = /([a-z0-9]{32} .*)$/gm
-        exec(launch_command,{cwd:game_client_folder},(error, stdout, stderr) => {
+        exec(launch_command,{cwd:game_client_folder},(error, stdout, _stderr) => {
             if (error) {
                 console.error(`exec error: ${error}`);
                 return;

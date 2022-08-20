@@ -1,16 +1,15 @@
 const https = require('https'); // or 'https' for https:// URLs
-const { createWriteStream, fstat } = require('fs')
-const { resolve, parse, join } = require('path')
-const { file_exists, write_image_data_to_file_compressed } = require('./helpers.js')
+const { createWriteStream } = require('fs')
+const { resolve, join } = require('path')
+const { file_exists, write_image_data_to_file_compressed } = require('../src/libs/helpers.js')
 const { unlink, readdir } = require('fs/promises')
 
-const { scrape_package } = require('./package-scraper/package_scraper.js')
-const { zip_and_hash_package } = require('./zip_and_hash.js')
-const bot = require('./discord-bot/bot.js')
-const mod_list = require('./modlist.js')
-const modlist = require('./modlist.js')
-const webserver = require('./webserver.js')
-const { SKINS_CHANNEL_ID, MODS_CHANNEL_ID } = require('./environment')
+const { scrape_package } = require('../src/libs/package-scraper/package_scraper.js')
+const { zip_and_hash_package } = require('../src/libs/zip_and_hash.js')
+const bot = require('../src/libs/discord-bot/bot.js')
+const mod_list = require('../src/libs/modlist.js')
+const modlist = require('../src/libs/modlist.js')
+const { SKINS_CHANNEL_ID, MODS_CHANNEL_ID } = require('../src/libs/environment')
 
 const images_path = "./images"
 const mods_path = "mods/"
@@ -98,7 +97,7 @@ async function list_attachments_to_be_deleted(attachment_list) {
 
         //filter out all mods that appear in the attachment list
         const deleted_mods = cached_mods.filter((file_name) => {
-            for (attachment of attachment_list) {
+            for (const attachment of attachment_list) {
                 if (file_name.includes(attachment.id)) {
                     return false
                 }
@@ -152,7 +151,7 @@ async function download_new_attachments(attachments) {
 
 async function parse_attachments(attachments) {
     //Sort new attachments so that screenshots will be processed last
-    attachments.sort((a,b)=>{
+    attachments.sort((a)=>{
         let type = identify_attachment_type(a)
         if(type == "skin_screenshot"){
             return 1
@@ -205,7 +204,7 @@ async function parse_attachments(attachments) {
                             let image_path = await write_image_data_to_file_compressed(`./images`, `${mod_info.id}_icon`, 'png', mod_info.detail.icon)
                             mod_info.detail.icon = image_path
                         }catch(e){
-                            console.log('unable to compress image',image_path)
+                            console.log('unable to compress image',mod_info.id)
                         }
                     }
                     if (mod_info?.detail?.preview) {
@@ -213,7 +212,7 @@ async function parse_attachments(attachments) {
                             let image_path = await write_image_data_to_file_compressed(`./images`, `${mod_info.id}_preview`, 'png', mod_info.detail.preview)
                             mod_info.detail.preview = image_path
                         }catch(e){
-                            console.log('unable to compress image',image_path)
+                            console.log('unable to compress image',mod_info.id)
                         }
                     }
                     await modlist.add_mod(mod_info, attachment_metadata)
@@ -251,7 +250,7 @@ function identify_attachment_type(attachment){
 function download(url, destination_file) {
     return new Promise((resolve, reject) => {
         let file = createWriteStream(destination_file, { flags: 'w' });
-        let request = https.get(url, function (response) {
+        https.get(url, function (response) {
             response.pipe(file);
             file.on('finish', function () {
                 file.close(resolve);  // close() is async, call cb after close completes.
@@ -261,7 +260,7 @@ function download(url, destination_file) {
             reject(err)
         });
     })
-};
+}
 
 async function add_screenshot_to_skin(image_attachment){
     let skin_id = image_attachment.thread_id
