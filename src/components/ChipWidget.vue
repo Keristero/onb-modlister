@@ -41,3 +41,17 @@
         </div>
     </li>
 </template>
+
+<script>
+import '@/assets/css/main.css'
+export default {
+  name: 'ChipWidget',
+  components: {
+  },
+
+  data() {
+    return {
+    }
+  }
+}
+</script>

@@ -1,9 +1,18 @@
 <template>
   <div id="app">
-    <ul id="main-chip">
-      <chip-widget v-for="(mod, idx) in mods" :key="idx">
-      </chip-widget>
-    </ul>
+    <div class="container-fluid">
+      <div class="row">
+          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+              <div id="filters">
+              </div>
+          </div>
+      </div>
+      <div class="row">
+        <ul id="main-chip">
+        <chip-widget v-for="(mod, idx) in mods" :key="idx"/>
+        </ul>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -24,12 +33,9 @@ export default {
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+/* unused */
+/* #app {
+
 }
+*/
 </style>

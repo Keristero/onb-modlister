@@ -1,5 +1,5 @@
 const { DISCORD_TOKEN, MODS_CHANNEL_ID ,SKINS_CHANNEL_ID} = require('../environment')
-const { Client, Intents, CommandInteractionOptionResolver, Collection} = require('discord.js');
+const { Client, Intents} = require('discord.js');
 const EventEmitter = require('events');
 
 class Discordbot extends EventEmitter{
@@ -127,7 +127,8 @@ class Discordbot extends EventEmitter{
         const sum_messages = [];
         let last_id;
         const options = {limit: 100};
-        while (true) {
+        const loop = true; // satisfy no-constant-condition
+        while (loop) {
             if (last_id) {
                 options.before = last_id;
             }

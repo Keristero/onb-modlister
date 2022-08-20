@@ -1,5 +1,5 @@
 const path = require('path')
-const { readdir, copyFile, mkdir,rm,stat} = require('fs/promises')
+const { readdir, copyFile, rm } = require('fs/promises')
 const { exec } = require('child_process')
 
 const game_client_folder = path.join('.', 'game-client', 'Release')
@@ -50,10 +50,10 @@ async function zip_and_hash_package(attachment_path, mod_info) {
 }
 
 function launch_client_zip_and_hash() {
-    return new Promise((resolve, _reject) => {
+    return new Promise((resolve, /* reject */) => {
         let launch_command = `BattleNetwork.exe -i`
         let hash_and_package_regex = /([a-z0-9]{32} .*)$/gm
-        exec(launch_command,{cwd:game_client_folder},(error, stdout, _stderr) => {
+        exec(launch_command,{cwd:game_client_folder},(error, stdout, /*stderr*/) => {
             if (error) {
                 console.error(`exec error: ${error}`);
                 return;

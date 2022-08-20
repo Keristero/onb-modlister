@@ -1,4 +1,4 @@
-import {display_detail_view_for_mod,hide_detail_view} from './detail_view.js'
+import {display_detail_view_for_mod,hide_detail_view} from 'detail_view.js'
 
 function create_mod_node(mod_id,mod_data){
     if(mod_data.data.type == "cards"){

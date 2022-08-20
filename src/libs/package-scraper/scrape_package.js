@@ -136,10 +136,10 @@ async function getPackageInfo(entry_file) {
             },
 
             // subpackages
-            define_card: (id, path) => {
+            define_card: (id) => {
                 packageInfo.subpackages.push(id);
             },
-            define_library: (id, path) => {
+            define_library: (id) => {
                 packageInfo.subpackages.push(id);
             },
 
@@ -255,7 +255,7 @@ function implementSupportingAPI(lua, packageInfo) {
         console.log('lua tried including', include_path)
         include_path = normalizePath(include_path)
         console.log('path normalized to', include_path)
-        file = preloaded_lua_files[include_path]
+        const file = preloaded_lua_files[include_path]
 
         if (!file) {
             throw (`unable to find lua in zip at path ${include_path}`)
@@ -267,7 +267,7 @@ function implementSupportingAPI(lua, packageInfo) {
     lua.global.set("Engine", {
         load_texture: (path) => path,
         load_audio: (path) => path,
-        define_character: (id, path) => {
+        define_character: (id) => {
             packageInfo.subpackages.push(id);
         },
         // dependencies
