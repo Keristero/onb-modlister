@@ -1,5 +1,5 @@
 <template>
-    <li>
+    <li class="bounce_fx">
         <div class="chip-box">
             <div class="ct-curve"></div>
             <div class="game-pic">
@@ -55,3 +55,22 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+@keyframes bounce {
+    0%  {-webkit-transform: translateX(-100px);} 
+    100% {-webkit-transform: translateX(0px);}  
+}
+
+@-webkit-keyframes bounce { 
+    0%  {-webkit-transform: translateX(-100px);} 
+    100% {-webkit-transform: translateX(0px);} 
+} 
+
+.bounce_fx {
+    -webkit-animation-name: bounce; 
+    animation-name: bounce;
+    -webkit-animation-duration: 1s;
+    animation-duration: 1s;
+}
+</style>

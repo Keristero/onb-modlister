@@ -183,10 +183,14 @@ ul#main-chip li {
     margin: 0 0.5% 20px;
     display: inline-block;
     list-style: none;
-    filter: drop-shadow(0px 1px 2px black);
-    /*! transition-delay: 1s; */
-    animation-delay: 1s;
-    animation-timing-function: ease-in;
+    filter: drop-shadow(0px 1px 2px black) grayscale(10%) brightness(90%);
+    transition: .2s;
+}
+
+ul#main-chip li:hover {
+    filter: drop-shadow(0px 25px 5px rgba(0, 0, 0, 0.455));
+    transition: .1s;
+    transform:rotate3d(1, 0, 0, -20deg);
 }
 
 .game-pic:before {
@@ -199,6 +203,7 @@ ul#main-chip li {
     left: -20px;
     top: 11px;
     filter: drop-shadow(0px -1px 2px #001e39bf);
+    transition: .2s;
 }
 
 .game-pic {
@@ -363,6 +368,15 @@ ul#main-chip {
     border-width: 1px;
     border-radius: 5px;
     border-color: #219ed0;
+    cursor:pointer;
+    transition: .2s;
+}
+
+/* Card hover transition */
+.chip-box:hover {
+    transform: translateY(-10px);
+    transition: .1s;
+    filter: drop-shadow(0 0 100px black);
 }
 
 .game-pic img {
