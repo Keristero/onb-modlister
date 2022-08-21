@@ -1,6 +1,6 @@
 <template>
-    <li class="">
-        <div class="chip-box">
+    <li class="chip-widget">
+        <div :class="_class">
             <div class="ct-curve"></div>
             <div class="game-pic">
                 <div class="black-circle"></div>
@@ -46,7 +46,49 @@
 import '@/assets/css/main.css'
 export default {
   name: 'ChipWidget',
+
   components: {
+  },
+
+computed: {
+    isMega() {
+        return this.type.toLowerCase() == 'mega';
+    },
+
+    isReg() {
+        return this.type.toLowerCase() == 'regular';
+    },
+
+    isGiga() {
+        return this.type.toLowerCase() == 'giga';
+    },
+
+    isDark() {
+        return this.type.toLowerCase() == 'dark';
+    },
+
+    _class() {
+        let result = "chip-box ";
+        
+        if(this.isMega) {
+            result += "Mega";
+        } else if(this.isGiga) {
+            result += "Giga";
+        } else if(this.isDark) {
+            result += "Dark";
+        } else /* this.isReg */ {
+            result += "Standard";
+        }
+
+        return result;
+    }
+},
+
+  props: {
+    type: {
+        default: "regular",
+        type: String,
+    },
   },
 
   data() {
@@ -72,5 +114,9 @@ export default {
     animation-name: bounce;
     -webkit-animation-duration: 1s;
     animation-duration: 1s;
+}
+
+.chip-widget {
+    padding-bottom: 100px;
 }
 </style>

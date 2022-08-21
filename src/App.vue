@@ -16,7 +16,8 @@
           <div class="available-bin">
             <ul id="main-chip">
             <draggable ghost-class="ghost" group="mods" :list="mods" @change="handleCheckout" @start="handleDragStart">
-              <chip-widget v-for="(mod, idx) in mods" :key="idx"/>
+              <chip-widget v-for="(mod, idx) in mods" :key="idx"
+              :type="randomType()"/>
             </draggable>
             </ul>
           </div>
@@ -71,6 +72,11 @@ export default {
 
     handleDragStart() {
       this.sfx.pickup.play();
+    },
+
+    randomType() {
+      const types = ['Giga','Mega','Dark','Standard']
+      return types[Math.floor(Math.random()* types.length)];
     }
   }
 }
@@ -81,6 +87,13 @@ export default {
   overflow: hidden;
   width: 100vw;
   height: 100vh;
+
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
 }
 
 .ghost {
@@ -102,7 +115,8 @@ export default {
   height: 100vh;
   width: 100%;
   overflow-y: scroll;
-  scrollbar-width: none;
+  scrollbar-width: thin;
+  scrollbar-color:white transparent;
 }
 
 .dragon-drop {
