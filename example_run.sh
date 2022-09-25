@@ -1,1 +1,1 @@
-DISCORD_TOKEN="discord_app_token_here" MODS_CHANNEL_ID="discord_channel_id_here" SKINS_CHANNEL_ID="discord_channel_id_here" PORT=3000 node main.js
+DISCORD_TOKEN="discord_app_token_here" MODS_CHANNEL_ID="discord_channel_id_here" SKINS_CHANNEL_ID="discord_channel_id_here" PORT=3000 ALLOWED_ORIGINS="http://mods.battlenetwork.io,http://localhost:3000" node main.js

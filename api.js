@@ -1,7 +1,8 @@
 const express = require('express')
+const cors = require('cors')
 const app = express()
 const modlist = require('./modlist.js')
-const {PORT} = require('./environment.js')
+const {PORT,ALLOWED_ORIGINS} = require('./environment.js')
 
 const cache_images_options = {
     etag: true,
@@ -15,7 +16,19 @@ const cache_mods_options = {
     maxAge: '30d',
 }
 
-app.use(express.static('web_static'))
+app.use(cors((req,callback)=>{
+    //configure cors options based on each request's origin
+    let requesting_origin = req.header('Origin')
+    let cors_options = {origin: false}
+    if(ALLOWED_ORIGINS.includes(requesting_origin)) {
+        cors_options.origin = true
+        console.log(`DEBUG, allowed request from ${requesting_origin}`)
+    }else{
+        console.log(`DEBUG, rejected request from ${requesting_origin}`)
+    }
+    callback(null, cors_options)
+}))
+
 app.use('/images', express.static('images',cache_images_options))
 app.use('/mods', express.static('mods',cache_mods_options))
 
@@ -30,4 +43,4 @@ app.get('/mod_whitelist',function(req,res){
 })
 
 app.listen(PORT)
-console.log(`webserver hosted on http://localhost:${PORT}`)
+console.log(`api hosted on http://localhost:${PORT}`)
