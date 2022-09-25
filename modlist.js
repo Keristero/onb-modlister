@@ -29,7 +29,6 @@ class Modlist{
         let result = []
         for(let sane_mod_id in this.modlist){
             let mod = this.modlist[sane_mod_id]
-            console.log(mod)
             result.push(`${mod.data.hash} ${mod.data.id}`)
         }
         return result.join('\n')

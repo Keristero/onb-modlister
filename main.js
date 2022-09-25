@@ -76,12 +76,12 @@ async function remove_any_old_mods() {
 
 async function remove_mods_not_in_attachment_list(all_attachments) {
     let attachments_to_delete = await list_attachments_to_be_deleted(all_attachments)
-    console.log('attachments to delete', attachments_to_delete)
+    console.log('attachments to delete', attachments_to_delete.length)
     for (let attachment_id of attachments_to_delete) {
         await modlist.remove_mod_by_attachment_id(attachment_id)
         await unlink(resolve(`${mods_path}/${attachment_id}.zip`))
     }
-    console.log('deleted mods', attachments_to_delete)
+    console.log('deleted mods', attachments_to_delete.length)
 }
 
 async function list_attachments_to_be_deleted(attachment_list) {
@@ -163,7 +163,7 @@ async function parse_attachments(attachments) {
     //parse each new attachment and add them to the modlist
     for (let attachment of attachments) {
         try {
-            console.log('attachment', attachment)
+            console.log('attachment', attachment.name)
             let attachment_metadata = {
                 timestamp: attachment.timestamp,
                 discord_url: attachment.attachment,
@@ -192,7 +192,6 @@ async function parse_attachments(attachments) {
                     await bot.react_to_attachment_message(attachment, bad_mod_emoji)
                     continue
                 }
-                console.log(mod_info)
 
                 let validity = await modlist.test_mod_update_validity(mod_info, attachment_metadata)
                 if (validity == 'valid') {
