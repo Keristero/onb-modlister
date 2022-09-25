@@ -9,7 +9,7 @@ const { zip_and_hash_package } = require('./zip_and_hash.js')
 const bot = require('./discord-bot/bot.js')
 const mod_list = require('./modlist.js')
 const modlist = require('./modlist.js')
-const webserver = require('./webserver.js')
+const api = require('./api.js')
 const { SKINS_CHANNEL_ID, MODS_CHANNEL_ID } = require('./environment')
 
 const images_path = "./images"
