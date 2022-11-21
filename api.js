@@ -29,6 +29,10 @@ app.use(cors((req,callback)=>{
     callback(null, cors_options)
 }))
 
+//test server for running with express
+app.use(express.static('./onb-modsite'))
+
+
 app.use('/images', express.static('images',cache_images_options))
 app.use('/mods', express.static('mods',cache_mods_options))
 
