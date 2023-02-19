@@ -1,8 +1,10 @@
+const https = require('https')
 const express = require('express')
 const cors = require('cors')
 const app = express()
 const modlist = require('./modlist.js')
-const {PORT,ALLOWED_ORIGINS} = require('./environment.js')
+const fs = requires('fs')
+const {PORT,ALLOWED_ORIGINS,SSL_KEY,SSL_CERT,USE_HTTPS} = require('./environment.js')
 
 const cache_images_options = {
     etag: true,
@@ -46,5 +48,18 @@ app.get('/mod_whitelist',function(req,res){
     res.end(modlist.get_all_whitelist());
 })
 
-app.listen(PORT)
-console.log(`api hosted on http://localhost:${PORT}`)
+const onListen = () => {
+    console.log(`api hosted on http://localhost:${PORT}`)
+}
+
+if(!USE_HTTPS) {
+    app.listen(PORT, onListen)
+    return
+}
+
+let props = {}
+if(SSL_KEY && SSL_CERT) {
+    props = { key: fs.readFileSync(SSL_KEY), cert: fs.readFileSync(SSL_CERT) },
+}
+
+https.createServer(props, app).listen(PORT, onListen)
