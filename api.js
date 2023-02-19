@@ -3,7 +3,7 @@ const express = require('express')
 const cors = require('cors')
 const app = express()
 const modlist = require('./modlist.js')
-const fs = requires('fs')
+const fs = require('fs')
 const {PORT,ALLOWED_ORIGINS,SSL_KEY,SSL_CERT,USE_HTTPS} = require('./environment.js')
 
 const cache_images_options = {
@@ -59,7 +59,7 @@ if(!USE_HTTPS) {
 
 let props = {}
 if(SSL_KEY && SSL_CERT) {
-    props = { key: fs.readFileSync(SSL_KEY), cert: fs.readFileSync(SSL_CERT) },
+    props = { key: fs.readFileSync(SSL_KEY), cert: fs.readFileSync(SSL_CERT) }
 }
 
 https.createServer(props, app).listen(PORT, onListen)
