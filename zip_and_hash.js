@@ -52,10 +52,10 @@ function launch_client_zip_and_hash() {
     return new Promise((resolve, reject) => {
         console.log(`cwd: ${game_client_folder}`)
 
-        let launch_command = `BattleNetwork -i`
+        const launch_command = 'BattleNetwork'
         let hash_and_package_regex = /([a-z0-9]{32} .*)$/gm
 	    
-        let onb = spawn(launch_command,{cwd:game_client_folder})
+        let onb = spawn(launch_command,['-i'],{cwd:game_client_folder})
 	
 	onb.on('close', (code) => {
             if(code !== 0) { console.log(`process ended with code ${code}`) }
