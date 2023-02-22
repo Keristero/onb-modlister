@@ -55,18 +55,19 @@ function launch_client_zip_and_hash() {
         let launch_command = `BattleNetwork -i`
         let hash_and_package_regex = /([a-z0-9]{32} .*)$/gm
 	    
-        spawn(launch_command,{cwd:game_client_folder})
-	spawn.on('close', (code) => {
+        let onb = spawn(launch_command,{cwd:game_client_folder})
+	
+	onb.on('close', (code) => {
             if(code !== 0) { console.log(`process ended with code ${code}`) }
             resolve(null)
 	})
 
-	spawn.on('error', (error) => {
+	onb.on('error', (error) => {
             console.error(`exec error: ${error}`);
             resolve(null)
         })
  
-        spawn.stdout.on('data', (data) => {
+        onb.stdout.on('data', (data) => {
             let result = data.match(hash_and_package_regex)
             if(result){
                 let last_match = result.pop().split(' ')
