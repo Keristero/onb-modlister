@@ -131,16 +131,20 @@ class Discordbot extends EventEmitter{
             if (last_id) {
                 options.before = last_id;
             }
-            let messages = await thread.messages.fetch(options)
-            sum_messages.push(...messages.map((item)=>{return item}));
-            if(messages.last()){
-                last_id = messages.last().id;
-            }else{
-                break;
-            }
-            if (messages.size != 100) {
-                break;
-            }
+	    try {
+                let messages = await thread.messages.fetch(options)
+                sum_messages.push(...messages.map((item)=>{return item}));
+                if(messages.last()){
+                    last_id = messages.last().id;
+                }else{
+                    break;
+                }
+                if (messages.size != 100) {
+                    break;
+                }
+           } catch (e) {
+               console.log('error:',e)
+           }
         }
         return sum_messages;
     }
