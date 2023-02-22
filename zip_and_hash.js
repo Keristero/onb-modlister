@@ -1,6 +1,6 @@
 const path = require('path')
 const { readdir, copyFile, mkdir,rm,stat} = require('fs/promises')
-const { exec } = require('child_process')
+const { exec, spawn } = require('child_process')
 
 const game_client_folder = path.join('.', 'game-client', 'Release')
 
@@ -48,21 +48,31 @@ async function zip_and_hash_package(attachment_path, mod_info) {
 }
 
 function launch_client_zip_and_hash() {
+    console.log('creating launch promise for client...')
     return new Promise((resolve, reject) => {
-        let launch_command = `BattleNetwork.exe -i`
+        console.log(`cwd: ${game_client_folder}`)
+
+        let launch_command = `BattleNetwork -i`
         let hash_and_package_regex = /([a-z0-9]{32} .*)$/gm
-        exec(launch_command,{cwd:game_client_folder},(error, stdout, stderr) => {
-            if (error) {
-                console.error(`exec error: ${error}`);
-                return;
-            }
-            let result = stdout.match(hash_and_package_regex)
+	    
+        spawn(launch_command,{cwd:game_client_folder})
+	spawn.on('close', (code) => {
+            if(code !== 0) { console.log(`process ended with code ${code}`) }
+            resolve(null)
+	})
+
+	spawn.on('error', (error) => {
+            console.error(`exec error: ${error}`);
+            resolve(null)
+        })
+ 
+        spawn.stdout.on('data', (data) => {
+            let result = data.match(hash_and_package_regex)
             if(result){
                 let last_match = result.pop().split(' ')
                 let output = {hash:last_match[0],package_id:last_match[1]}
                 resolve(output)
             }
-            resolve(null)
         });
     })
 
