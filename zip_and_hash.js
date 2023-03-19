@@ -1,6 +1,8 @@
 const path = require('path')
 const { readdir, copyFile, mkdir,rm,stat} = require('fs/promises')
 const { exec } = require('child_process')
+const { async_sleep } = require('./helpers.js')
+const default_sleep_delay = 100 //reduce chance of something whacky happening here
 
 const game_client_folder = path.join('.', 'game-client', 'Release')
 
@@ -30,21 +32,30 @@ async function ensure_dir_exists(filePath) {
 }
 
 async function zip_and_hash_package(attachment_path, mod_info) {
-    console.log('clearing client mods')
-    await clear_client_mods()
-    let package_path = path.join(game_client_folder, 'resources', 'mods', mod_info.type, 'package.zip')
-    console.log('copying ',attachment_path,' attachment to ', package_path)
-    await copyFile(attachment_path, package_path)
-    let hash_result = await launch_client_zip_and_hash()
-    console.log('hash result',hash_result)
-    if(hash_result){
-        let zipped_path = package_path
-        console.log('copying client zipped mod from',zipped_path)
-        await copyFile(zipped_path,attachment_path)
-        console.log('overwrote original package zip with client zipped package')
-        return hash_result
+    try{
+        console.log('clearing client mods')
+        await async_sleep(default_sleep_delay)
+        await clear_client_mods()
+        await async_sleep(default_sleep_delay)
+        let package_path = path.join(game_client_folder, 'resources', 'mods', mod_info.type, 'package.zip')
+        console.log('copying ',attachment_path,' attachment to ', package_path)
+        await copyFile(attachment_path, package_path)
+        await async_sleep(default_sleep_delay)
+        let hash_result = await launch_client_zip_and_hash()
+        console.log('hash result',hash_result)
+        if(hash_result){
+            let zipped_path = package_path
+            console.log('copying client zipped mod from',zipped_path)
+            await copyFile(zipped_path,attachment_path)
+            console.log('overwrote original package zip with client zipped package')
+            return hash_result
+        }
+        return null
+    }catch(e){
+        console.error(`error hashing mod`,e)
+    }finally{
+        return null
     }
-    return null
 }
 
 function launch_client_zip_and_hash() {

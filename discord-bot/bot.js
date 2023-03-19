@@ -1,5 +1,7 @@
 const { DISCORD_TOKEN, MODS_CHANNEL_ID ,SKINS_CHANNEL_ID} = require('../environment')
 const { Client, Intents, CommandInteractionOptionResolver, Collection} = require('discord.js');
+const { async_sleep } = require('../helpers')
+const rate_limit_avoidance_ms = 50// minimum amount, it will be multiplied for certain tasks
 const EventEmitter = require('events');
 
 class Discordbot extends EventEmitter{
@@ -10,7 +12,8 @@ class Discordbot extends EventEmitter{
         console.log(`attempting discord login`)
         this.client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS,Intents.FLAGS.MESSAGE_CONTENT] });
         this.client.on('ready', () => {
-            console.log(`Logged in as ${this.client.user.tag}!`);
+            this.id = this.client.user.id
+            console.log(`Logged in as ${this.client.user.tag}, userid ${this.id}`);
             this.emit('ready')
         });
         this.client.on('interactionCreate', async interaction => {
@@ -40,6 +43,16 @@ class Discordbot extends EventEmitter{
         const message = await thread.messages.fetch(attachment.message_id)
         return message
     }
+    async remove_all_reactions_from_message_by_uid(message,uid){
+        const userReactions = message.reactions.cache.filter(reaction => reaction.users.cache.has(uid));
+        try {
+            for (const reaction of userReactions.values()) {
+                await reaction.users.remove(userId);
+            }
+        } catch (error) {
+            console.error('Failed to remove reactions.');
+        }
+    }
     async react_to_attachment_message(attachment,emoji){
         try{
             const thread = await this.get_attachment_thread(attachment)
@@ -52,8 +65,8 @@ class Discordbot extends EventEmitter{
                 //cant react to messages that dont exist
                 return
             }
+            this.remove_all_reactions_from_message_by_uid(message,this.id)
             console.log(`reacting to message with`,emoji)
-            message.reactions.removeAll()
             message.react(emoji);
             console.log(`reacted with`,emoji)
         }catch(e){
@@ -131,28 +144,29 @@ class Discordbot extends EventEmitter{
             if (last_id) {
                 options.before = last_id;
             }
-            let messages = await thread.messages.fetch(options)
-            sum_messages.push(...messages.map((item)=>{return item}));
-            if(messages.last()){
-                last_id = messages.last().id;
-            }else{
-                break;
-            }
-            if (messages.size != 100) {
-                break;
-            }
+                let messages = await thread.messages.fetch(options)
+                sum_messages.push(...messages.map((item)=>{return item}));
+                if(messages.last()){
+                    last_id = messages.last().id;
+                    await async_sleep(rate_limit_avoidance_ms)
+                }else{
+                    break;
+                }
+                if (messages.size != 100) {
+                    break;
+                }
         }
         return sum_messages;
     }
     get_all_attachments_from_list_of_threads(threads){
-        let thread_promises = []
         let attachments = []
         return new Promise(async(resolve)=>{
             try{
-                threads.forEach(async (thread) => {
-                    let thread_fetch = this.get_all_messages_in_thread(thread)
-                    thread_promises.push(thread_fetch)
-                    const messages = await thread_fetch
+                let thread_i = 1
+                for await (const thread of threads.values()){
+                    console.log(`getting all messages from thread ${thread_i}`)
+                    let messages = await this.get_all_messages_in_thread(thread)
+                    await async_sleep(rate_limit_avoidance_ms*2)
                     messages.forEach((message) => {
                         message.attachments.forEach((attachment) => {
                             //add required extra meta data to the attachment object
@@ -168,8 +182,8 @@ class Discordbot extends EventEmitter{
                             attachments.push(attachment)
                         })
                     })
-                })
-                await Promise.all(thread_promises)
+                    thread_i++
+                }
                 console.log(`got ${attachments.length} attachments`)
                 resolve(attachments)
             }catch(e){

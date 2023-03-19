@@ -1,8 +1,8 @@
 const https = require('https'); // or 'https' for https:// URLs
 const { createWriteStream, fstat } = require('fs')
 const { resolve, parse, join } = require('path')
-const { file_exists, write_image_data_to_file_compressed } = require('./helpers.js')
-const { unlink, readdir } = require('fs/promises')
+const { file_exists, write_image_data_to_file_compressed, save_to_json, open_json} = require('./helpers.js')
+const { unlink, readdir, copyFile} = require('fs/promises')
 
 const { scrape_package } = require('./package-scraper/package_scraper.js')
 const { zip_and_hash_package } = require('./zip_and_hash.js')
@@ -14,6 +14,8 @@ const { SKINS_CHANNEL_ID, MODS_CHANNEL_ID } = require('./environment')
 
 const images_path = "./images"
 const mods_path = "mods/"
+const deleted_mods_path = "deleted/mods/"
+const all_attachment_info_cache = `./all_attachment_info_cache.json`
 const good_mod_emoji = "✅"
 const bad_mod_emoji = "❌"
 const wrong_author_emoji = "🔒"
@@ -26,7 +28,7 @@ bot.on('ready', async() => {
         console.log('failed to refresh mods at startup, continuing anyway...')
     }
     remove_old_mods_regularly(60 * 60)//every hour
-    await bot.poll_active_thread_attachments(60)//every minute
+    await bot.poll_active_thread_attachments(120)//every two minutes
 
     bot.on('active_thread_attachments', async (attachments) => {
         let new_attachments = await download_new_attachments(attachments)
@@ -53,7 +55,10 @@ async function refresh_all_mods() {
     try {
         //get a list of all attachments in the mods channel
         let all_attachments = await bot.get_all_attachments_in_channels()
-        console.log(`got list of all attachments`)
+        //NOTE, if you dont want to get rate limited while testing, comment the line above, and uncomment the line below.
+        //let all_attachments = await open_json(all_attachment_info_cache)
+        await save_to_json(all_attachment_info_cache,all_attachments)
+        console.log(`got list of all attachments`,all_attachments)
         let new_attachments = await download_new_attachments(all_attachments)
 
         //iterate over each attachment and download it if we have not already got a copy in /mods
@@ -79,7 +84,11 @@ async function remove_mods_not_in_attachment_list(all_attachments) {
     console.log('attachments to delete', attachments_to_delete.length)
     for (let attachment_id of attachments_to_delete) {
         await modlist.remove_mod_by_attachment_id(attachment_id)
-        await unlink(resolve(`${mods_path}/${attachment_id}.zip`))
+        let current_attachment_path = resolve(`${mods_path}/${attachment_id}.zip`)
+        let deleted_attachment_path = resolve(`${deleted_mods_path}/${attachment_id}.zip`)
+        await copyFile(current_attachment_path,deleted_attachment_path)
+        await unlink(current_attachment_path)
+        
     }
     console.log('deleted mods', attachments_to_delete.length)
 }
@@ -197,7 +206,9 @@ async function parse_attachments(attachments) {
                 if (validity == 'valid') {
                     //zip and hash the package using the game client
                     let client_res = await zip_and_hash_package(attachment.path, mod_info)
-                    mod_info.hash = client_res.hash
+                    if(client_res){
+                        mod_info.hash = client_res.hash
+                    }
                     //save images from mod_info to disk for previewing
                     if (mod_info?.detail?.icon) {
                         try{
