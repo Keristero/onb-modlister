@@ -160,7 +160,7 @@ class Discordbot extends EventEmitter{
     }
     get_all_attachments_from_list_of_threads(threads){
         let attachments = []
-        return new Promise(async(resolve)=>{
+        return new Promise(async(resolve,reject)=>{
             try{
                 let thread_i = 1
                 for await (const thread of threads.values()){
