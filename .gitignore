@@ -7,3 +7,4 @@ run.bat
 /game-client/Release/
 /game-client/ReleaseLin/
 all_attachment_info_cache.json
+docker-compose.yml

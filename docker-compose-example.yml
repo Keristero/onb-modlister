@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  onb-modlister:
+    build: .
+    image: onb-modlister
+    restart: unless-stopped
+    network_mode: 'host'
+    volumes:
+      - ./deleted:/deleted
+      - ./images:/images
+      - ./mods:/mods
+    environment:
+      - DISCORD_TOKEN=replacemereplaceme
+      - MODS_CHANNEL_ID=replacemereplaceme
+      - PORT=8090
+      - SKINS_CHANNEL_ID=replacemereplaceme
+      - ALLOWED_ORIGINS=https://battlenetwork.io,https://keristero.github.io
