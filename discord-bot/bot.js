@@ -19,7 +19,7 @@ class Discordbot extends EventEmitter{
         this.client.on('interactionCreate', async interaction => {
             if (!interaction.isCommand()) return;
         });
-        this.client.login(DISCORD_TOKEN);
+        //this.client.login(DISCORD_TOKEN); COMMENTED OUT FOR TEST
     }
     async get_channels_by_ids(channel_ids){
         /**

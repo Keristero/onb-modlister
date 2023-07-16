@@ -83,10 +83,12 @@ async function scrapePackage(zipFile) {
     };
 
     if (packageInfo.detail.icon) {
+        packageInfo.detail.icon_zip = packageInfo.detail.icon
         packageInfo.detail.icon = await extractImage(packageInfo.detail.icon);
     }
 
     if (packageInfo.detail.preview) {
+        packageInfo.detail.preview_zip = packageInfo.detail.preview
         packageInfo.detail.preview = await extractImage(packageInfo.detail.preview);
     }
 
@@ -210,10 +212,18 @@ async function getPackageInfo(entry_file) {
             },
 
             // enemies + players
-            set_speed: () => { },
-            set_attack: () => { },
-            set_health: () => { },
-            set_charged_attack: () => { },
+            set_speed: (speed) => {
+                packageInfo.speed = speed
+            },
+            set_attack: (attack) => {
+                packageInfo.attack = attack
+            },
+            set_health: (health) => {
+                packageInfo.health = health
+            },
+            set_charged_attack: (charge_buster_damage) => {
+                packageInfo.charge_buster_damage = charge_buster_damage
+            },
         };
 
         // load
@@ -225,6 +235,11 @@ async function getPackageInfo(entry_file) {
 
         const package_init = lua.global.get("package_init");
         package_init(package_arg);
+
+        if(packageInfo.type = "players"){
+            const player_init = lua.global.get("player_init");
+            player_init(package_arg);
+        }
 
         if (
             packageInfo.type == DEFAULT_PACKAGE_TYPE &&

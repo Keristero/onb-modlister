@@ -1,4 +1,5 @@
 const {open_json,save_to_json,sanitize_string,AsyncLock} = require('./helpers.js')
+const {sync_mod} = require('./milk_api.js')
 const modlist_json_path = `./modlist.json`
 
 const json_lock = new AsyncLock()
@@ -13,6 +14,13 @@ class Modlist{
         json_lock.disable()
         console.log(`loaded mod list ${Object.keys(this.modlist).length} mods`)
         this.has_changed_since_last_get_all = true
+        //For refreshing the MILK Pet site
+        //for(let mod_id in this.modlist){
+        //    let mod = this.modlist[mod_id]
+        //    if(mod.data.type != "skins"){
+        //        await this.sync_mod_with_api(mod_id,mod)
+        //    }
+        //}
     }
     get_mod_by_id(mod_id){
         let sane_id = sanitize_string(mod_id)
@@ -83,13 +91,23 @@ class Modlist{
         }
         return 'valid'
     }
+    async sync_mod_with_api(mod_id,new_mod){
+        try{
+            let old_mod = this.modlist[mod_id] || null
+            await sync_mod(old_mod,new_mod)
+            return true
+        }catch(e){
+            console.log('failed to sync mod with api',e)
+        }
+        return false
+    }
     async add_mod(mod_info,attachment_metadata){
         let new_mod = {
             data:mod_info,
             attachment_data:attachment_metadata
         }
         let mod_id = sanitize_string(new_mod.data.id)
-
+        await this.sync_mod_with_api(mod_id,new_mod)
         this.modlist[mod_id] = new_mod
         await this.save_modlist()
         this.has_changed_since_last_get_all = true
