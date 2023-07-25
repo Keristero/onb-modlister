@@ -11,6 +11,13 @@ const luaFactory = new LuaFactory();
 
 let preloaded_lua_files = {}
 let current_path = ""
+let mod_type_counters = {
+    players:0,
+    cards:0,
+    blocks:0,
+    enemies:0,
+    libs:0
+}
 
 main()
 
@@ -130,9 +137,6 @@ async function getPackageInfo(entry_file) {
             declare_package_id: (id) => {
                 packageInfo.id = id;
             },
-            set_name: (name) => {
-                packageInfo.name = name;
-            },
             set_description: (description) => {
                 packageInfo.description = description;
             },
@@ -147,28 +151,28 @@ async function getPackageInfo(entry_file) {
 
             // blocks
             set_color: (color) => {
-                packageInfo.type = "blocks";
+                mod_type_counters.blocks++
                 packageInfo.detail.color = color;
             },
             set_shape: (shape) => {
-                packageInfo.type = "blocks";
+                mod_type_counters.blocks++
                 packageInfo.detail.shape = shape;
             },
             set_mutator: () => {
-                packageInfo.type = "blocks";
+                mod_type_counters.blocks++
             },
             as_program: () => {
-                packageInfo.type = "blocks";
+                mod_type_counters.blocks++
                 packageInfo.detail.is_program = true;
             },
 
             // cards
             set_codes: (codes) => {
-                packageInfo.type = "cards";
+                mod_type_counters.cards++
                 packageInfo.detail.codes = codes;
             },
             get_card_props: () => {
-                packageInfo.type = "cards";
+                mod_type_counters.cards++
                 if (!packageInfo.detail.props) {
                     packageInfo.detail.props = {
                         can_boost: true,
@@ -180,24 +184,57 @@ async function getPackageInfo(entry_file) {
             },
 
             // players
+            set_height:(val) =>{
+                packageInfo.height = val
+            },
             set_special_description: (description) => {
-                packageInfo.type = "players";
+                mod_type_counters.players++
                 packageInfo.description = description;
             },
             set_overworld_animation_path: () => {
-                packageInfo.type = "players";
+                mod_type_counters.players++
             },
             set_overworld_texture_path: () => {
-                packageInfo.type = "players";
+                mod_type_counters.players++;
             },
             set_mugshot_texture_path: () => {
-                packageInfo.type = "players";
+                mod_type_counters.players++;
             },
             set_mugshot_animation_path: () => {
-                packageInfo.type = "players";
+                mod_type_counters.players++;
             },
             set_emotions_texture_path: () => { },
-
+            set_name: (name) => {
+                packageInfo.name = name;
+            },
+            get_name: () => {
+                return packageInfo.name
+            },
+            set_element: (val) => {
+                packageInfo.element = val
+            },
+            get_element: () => {
+                return packageInfo.element
+            },
+            set_attack_level: (val) => {
+                packageInfo.attack_level = val
+            },
+            get_attack_level: () => {
+                return packageInfo.attack_level
+            },
+            set_charge_level: (val) => {
+                packageInfo.charge_level = val
+            },
+            get_charge_level: () => {
+                return packageInfo.charge_level
+            },
+            set_fully_charged_color: (val) => {
+                packageInfo.charge_shot_color = val
+            },
+            set_charge_position: (x,y) => {
+                packageInfo.charge_position = {x,y}
+            },
+            
             // cards, enemies, and players
             set_preview_texture: (path) => {
                 packageInfo.detail.preview = path;
@@ -221,9 +258,29 @@ async function getPackageInfo(entry_file) {
             set_health: (health) => {
                 packageInfo.health = health
             },
+            get_health: (health) => {
+                return packageInfo.health
+            },
+            get_max_health: (health) => {
+                return packageInfo.health
+            },
+            mod_max_health: (health) => {
+                packageInfo.mod_hp = health
+            },
+            get_max_health_mod: (health) => {
+                return packageInfo.mod_hp
+            },
             set_charged_attack: (charge_buster_damage) => {
                 packageInfo.charge_buster_damage = charge_buster_damage
             },
+            set_facing: (direction) => {},
+            get_facing: () => {return 4},//right?
+            set_animation: (val) =>{
+                packageInfo.detail.animation = val
+            },
+            set_texture: (val) =>{
+                packageInfo.detail.texture = val
+            }
         };
 
         // load
@@ -236,9 +293,20 @@ async function getPackageInfo(entry_file) {
         const package_init = lua.global.get("package_init");
         package_init(package_arg);
 
+        let most_likely_mod_type = DEFAULT_PACKAGE_TYPE
+        let highest_counter = 0
+        for(let mod_type in mod_type_counters){
+            let val = mod_type_counters[mod_type]
+            if(val > highest_counter){
+                most_likely_mod_type = mod_type
+                highest_counter = val
+            }
+        }
+
         if(packageInfo.type = "players"){
-            const player_init = lua.global.get("player_init");
-            player_init(package_arg);
+            //player init needs a lot of stuff
+            //const player_init = lua.global.get("player_init");
+            //player_init(package_arg);
         }
 
         if (
@@ -296,6 +364,17 @@ function implementSupportingAPI(lua, packageInfo) {
             packageInfo.dependencies.push(id);
         },
     });
+
+    lua.global.set("Battle", {
+        Artifact: () => {
+            let artifact = {}
+            artifact.new = ()=>{
+                return {artifact};
+            }
+            return artifact
+        },
+    });
+
 
     lua.global.set("Color", {
         new: function (r, g, b, a) {
@@ -359,6 +438,19 @@ function implementSupportingAPI(lua, packageInfo) {
         Break: "Break",
         None: "None",
     });
+
+    lua.global.set("Drag", {
+        Left: 1,//These values are wrong, but they should not matter 99% of the time
+        Right: 2,
+        Up: 3,
+        Down: 4,
+        UpLeft: 4,
+        DownLeft: 5,
+        UpRight: 6,
+        DownRight: 7,
+        None: 8,
+    });
+
 
     lua.global.set("CardClass", {
         Standard: "Standard",
