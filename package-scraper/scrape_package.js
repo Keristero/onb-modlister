@@ -11,13 +11,6 @@ const luaFactory = new LuaFactory();
 
 let preloaded_lua_files = {}
 let current_path = ""
-let mod_type_counters = {
-    players:0,
-    cards:0,
-    blocks:0,
-    enemies:0,
-    libs:0
-}
 
 main()
 
@@ -103,6 +96,13 @@ async function scrapePackage(zipFile) {
 }
 
 async function getPackageInfo(entry_file) {
+    let mod_type_counters = {
+        players:0,
+        cards:0,
+        blocks:0,
+        enemies:0,
+        libs:0
+    }
     const DEFAULT_PACKAGE_TYPE = "libs";
     const packageInfo = {
         type: DEFAULT_PACKAGE_TYPE, // "blocks" | "cards" | "enemies" | "libs" | "players"
@@ -110,20 +110,7 @@ async function getPackageInfo(entry_file) {
         dependencies: [],
         subpackages: [],
         name: "",
-        detail: {
-            /*
-            // blocks properties
-            color, // "White" | "Red" | "Green" | "Blue" | "Pink" | "Yellow"
-            shape,
-            // card properties
-            codes, // string[]
-            props,
-            // card + player properties
-            icon, // string -> uint8array
-            // card, enemies, and player properties
-            preview, // string -> uint8array
-            */
-        },
+        detail: {},
     };
 
     // Create a standalone lua environment from the factory
@@ -267,7 +254,7 @@ async function getPackageInfo(entry_file) {
             mod_max_health: (health) => {
                 packageInfo.mod_hp = health
             },
-            get_max_health_mod: (health) => {
+            get_max_health_mod: () => {
                 return packageInfo.mod_hp
             },
             set_charged_attack: (charge_buster_damage) => {
@@ -302,11 +289,12 @@ async function getPackageInfo(entry_file) {
                 highest_counter = val
             }
         }
+        packageInfo.type = most_likely_mod_type
 
-        if(packageInfo.type = "players"){
+        if(packageInfo.type == "players"){
             //player init needs a lot of stuff
-            //const player_init = lua.global.get("player_init");
-            //player_init(package_arg);
+            const player_init = lua.global.get("player_init");
+            player_init(package_arg);
         }
 
         if (
