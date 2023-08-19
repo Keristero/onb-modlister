@@ -1,6 +1,7 @@
 ./docker-compose.yml
 ./run.sh
 modlist.json
+serverlist.json
 node_modules/
 run.sh
 run.bat

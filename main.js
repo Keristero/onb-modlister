@@ -9,6 +9,7 @@ const { zip_and_hash_package } = require('./zip_and_hash.js')
 const bot = require('./discord-bot/bot.js')
 const mod_list = require('./modlist.js')
 const modlist = require('./modlist.js')
+const server_list = require('./serverlist.js')
 const api = require('./api.js')
 const { SKINS_CHANNEL_ID, MODS_CHANNEL_ID } = require('./environment')
 
@@ -42,6 +43,7 @@ main()
 async function main() {
     //load existing list of mods from json file
     await mod_list.load_modlist()
+    await server_list.load_serverlist()
 }
 
 function remove_old_mods_regularly(every_x_seconds) {

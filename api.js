@@ -43,11 +43,21 @@ app.use('/mods', express.static('mods',cache_mods_options))
 
 app.use(express.json());
 
-app.post('/server_list', function (req, res) {
+app.post('/server_list', async function (req, res) {
     console.log('server_list request body',req.body)
-    serverlist.add_server(req.body)
+    let status = await serverlist.update_server(req.body)
+    console.log('status=',status)
+    res.status(200);
+    let response_data = {detail:status}
+    if(status.includes("secretkey")){
+        response_data.secret_key = status.split("=")[1]
+    }
+    if(status == "failed"){
+        res.status(400);
+    }
+    console.log('sending response',response_data)
     res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify({detail:"ok"}));
+    res.end(JSON.stringify(response_data));
 })
 
 app.get('/server_list', function (req, res) {
