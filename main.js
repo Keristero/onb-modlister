@@ -28,7 +28,7 @@ bot.on('ready', async() => {
     }catch(e){
         console.log('failed to refresh mods at startup, continuing anyway...')
     }
-    remove_old_mods_regularly(60 * 60)//every hour
+    remove_old_mods_regularly(60 * 60 * 2)//every 2 hours
     await bot.poll_active_thread_attachments(120)//every two minutes
 
     bot.on('active_thread_attachments', async (attachments) => {
