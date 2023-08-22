@@ -71,7 +71,7 @@ class Serverlist{
         try{
             let unique_server_id = request_body?.server_id
             if(!unique_server_id){
-                return 'no unique id provided'
+                return {status:'no unique id provided',changed_values:{}}
             }
 
             let secret_key = request_body?.secret_key
@@ -79,14 +79,12 @@ class Serverlist{
             let server_already_added = server_secret_key != null && server_secret_key != undefined
             console.log('server already added?',server_already_added)
             if(server_already_added && server_secret_key != secret_key){
-                return 'invalid secret provided'
+                return {status:'invalid secret provided',changed_values:{}}
             }
 
             let server_details = {}
             let should_write_to_disk = false
-            console.log('fields',request_body.fields)
             for(let field_name in request_body.fields){
-                console.log('iterating',field_name)
                 if(persisted_fields.includes(field_name)){
                     should_write_to_disk = true
                     server_details[field_name] = request_body.fields[field_name]
@@ -119,13 +117,13 @@ class Serverlist{
             }
             this.has_changed_since_last_get_all = true
             if(server_already_added){
-                return 'updated'
+                return {status:'updated',changed_values:{[unique_server_id]:server_details}}
             }else{
-                return `secretkey=${server_secret_key}`
+                return {status:`secretkey=${server_secret_key}`,changed_values:{[unique_server_id]:server_details}}
             }
         }catch(e){
             console.error("failed to add server",e)
-            return 'failed'
+            return {status:'failed',changed_values:{}}
         }
     }
 }

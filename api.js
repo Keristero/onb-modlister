@@ -5,6 +5,14 @@ const modlist = require('./modlist.js')
 const {PORT,ALLOWED_ORIGINS} = require('./environment.js')
 const serverlist = require('./serverlist.js')
 
+const wss = new WebSocketServer({ port: 6091 });
+//for testing only
+wss.on('connection', function connection(ws) {
+    ws.on('message', function message(data) {
+        console.log('received: %s', data);
+    });
+});
+
 const cache_images_options = {
     etag: true,
     index: false,
@@ -43,9 +51,25 @@ app.use('/mods', express.static('mods',cache_mods_options))
 
 app.use(express.json());
 
+function websocket_broadcast(changed_values){
+    for(let client of wss.clients){
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(changed_values, { binary: false });
+        }
+    }
+}
+
+setInterval(()=>{
+    let fake_vals = {"gravy_yum":{online_players:Math.random()*1000}}
+    websocket_broadcast(fake_vals)
+})
+
 app.post('/server_list', async function (req, res) {
     console.log('server_list request body',req.body)
-    let status = await serverlist.update_server(req.body)
+    let {status,changed_values} = await serverlist.update_server(req.body)
+    if(Object.keys(changed_values).length > 0){
+        websocket_broadcast(changed_values)
+    }
     console.log('status=',status)
     res.status(200);
     let response_data = {detail:status}
