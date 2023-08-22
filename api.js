@@ -3,15 +3,8 @@ const cors = require('cors')
 const app = express()
 const modlist = require('./modlist.js')
 const {PORT,ALLOWED_ORIGINS} = require('./environment.js')
+const {WebSocketServer,WebSocket} = require('ws')
 const serverlist = require('./serverlist.js')
-
-const wss = new WebSocketServer({ port: 6091 });
-//for testing only
-wss.on('connection', function connection(ws) {
-    ws.on('message', function message(data) {
-        console.log('received: %s', data);
-    });
-});
 
 const cache_images_options = {
     etag: true,
@@ -28,7 +21,7 @@ const cache_mods_options = {
 app.use(cors((req,callback)=>{
     //configure cors options based on each request's origin
     let requesting_origin = req.header('Origin')
-    let cors_options = {origin: false}
+    let cors_options = {origin: false}//set to false in production!
     console.log(req.url,req.method)
     //We allow posts for server advertisement from anywhere
     let is_server_advertisement = req.url == "/server_list/" && req.method == "POST"
@@ -50,19 +43,6 @@ app.use('/server_images', express.static('server_images',cache_images_options))
 app.use('/mods', express.static('mods',cache_mods_options))
 
 app.use(express.json());
-
-function websocket_broadcast(changed_values){
-    for(let client of wss.clients){
-        if (client.readyState === WebSocket.OPEN) {
-            client.send(changed_values, { binary: false });
-        }
-    }
-}
-
-setInterval(()=>{
-    let fake_vals = {"gravy_yum":{online_players:Math.random()*1000}}
-    websocket_broadcast(fake_vals)
-})
 
 app.post('/server_list', async function (req, res) {
     console.log('server_list request body',req.body)
@@ -99,5 +79,22 @@ app.get('/mod_whitelist',function(req,res){
     res.end(modlist.get_all_whitelist());
 })
 
-app.listen(PORT)
+const server = app.listen(PORT)
+//for websockets
+const wss = new WebSocketServer({ noServer: true });
+wss.on('connection', socket => {
+  socket.on('message', message => console.log(message));
+});
+function websocket_broadcast(changed_values){
+    for(let client of wss.clients){
+        if (client && client?.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify(changed_values), { binary: false });
+        }
+    }
+}
+server.on('upgrade', (request, socket, head) => {
+    wss.handleUpgrade(request, socket, head, socket => {
+        wss.emit('connection', socket, request);
+    });
+});
 console.log(`api hosted on http://localhost:${PORT}`)
