@@ -32,6 +32,7 @@ async function write_image_data_to_file(folder_path, file_name, extension, image
     let file_path = `${join(folder_path, safe_filename)}.${extension}`
     if(await file_exists(file_path)){
         await unlink(file_path)
+        console.log('deleted old file',file_path)
     }
     await writeFile(file_path, image_data)
     console.log('wrote file',file_path)

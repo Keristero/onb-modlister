@@ -4,7 +4,7 @@ const server_images_folder = `./server_images/`
 const crypto = require('crypto');
 
 const ephemerial_fields = ["online_players"]
-const persisted_fields = ["name","description","tags","address","data","color"]
+const persisted_fields = ["name","description","tags","address","data","color","map"]
 
 const json_lock = new AsyncLock()
 class Serverlist{
@@ -13,9 +13,12 @@ class Serverlist{
         let one_hour = 1000*60*60
         setInterval(async()=>{
             for(let server_id in this.serverlist.details){
-                last_alive_ts = this.serverlist.details[server_id].last_alive_ts
+                let last_alive_ts = this.serverlist.details[server_id].last_alive_ts
+                if(!last_alive_ts){
+                    continue
+                }
                 //if a server has not been up for more than 2 weeks delete it
-                if(Date.now() - last_updated_ts > one_hour*14*24){
+                if(Date.now() - last_alive_ts > one_hour*14*24){
                     await this.remove_server_by_id(server_id)
                 }
             }
