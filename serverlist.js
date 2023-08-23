@@ -3,8 +3,9 @@ const serverlist_json_path = `./serverlist.json`
 const server_images_folder = `./server_images/`
 const crypto = require('crypto');
 
-const ephemerial_fields = ["online_players"]
+const ephemerial_fields = ["online_players","player_maps"]
 const persisted_fields = ["name","description","tags","address","data","color","map"]
+//deprecated fields (online_players)
 
 const json_lock = new AsyncLock()
 class Serverlist{
