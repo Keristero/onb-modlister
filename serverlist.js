@@ -111,7 +111,6 @@ class Serverlist{
             for(let field_name in server_details){
                 this.serverlist.details[unique_server_id][field_name] = server_details[field_name]
             }
-            console.log('serverlist details=',this.serverlist.details)
             if(should_write_to_disk){
                 console.log('saving serverlist')
                 await this.save_serverlist()

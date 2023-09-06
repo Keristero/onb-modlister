@@ -22,14 +22,10 @@ app.use(cors((req,callback)=>{
     //configure cors options based on each request's origin
     let requesting_origin = req.header('Origin')
     let cors_options = {origin: false}//set to false in production!
-    console.log(req.url,req.method)
     //We allow posts for server advertisement from anywhere
     let is_server_advertisement = req.url == "/server_list/" && req.method == "POST"
     if(ALLOWED_ORIGINS.includes(requesting_origin) || is_server_advertisement) {
         cors_options.origin = true
-        console.log(`DEBUG, allowed request from ${requesting_origin}`)
-    }else{
-        console.log(`DEBUG, rejected request from ${requesting_origin}`)
     }
     callback(null, cors_options)
 }))
@@ -45,12 +41,10 @@ app.use('/mods', express.static('mods',cache_mods_options))
 app.use(express.json());
 
 app.post('/server_list', async function (req, res) {
-    console.log('server_list request body',req.body)
     let {status,changed_values} = await serverlist.update_server(req.body)
     if(Object.keys(changed_values).length > 0){
         websocket_broadcast(changed_values)
     }
-    console.log('status=',status)
     res.status(200);
     let response_data = {detail:status}
     if(status.includes("secretkey")){
@@ -59,7 +53,6 @@ app.post('/server_list', async function (req, res) {
     if(status == "failed"){
         res.status(400);
     }
-    console.log('sending response',response_data)
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(response_data));
 })
