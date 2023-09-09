@@ -267,7 +267,13 @@ async function getPackageInfo(entry_file) {
             },
             set_texture: (val) =>{
                 packageInfo.detail.texture = val
-            }
+            },
+            set_float_shoe: (val) => {
+                packageInfo.float_shoe = val
+            },
+            set_air_shoe: (val) => {
+                packageInfo.air_shoe = val
+            },
         };
 
         // load

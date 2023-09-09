@@ -10,7 +10,7 @@ class Discordbot extends EventEmitter{
         this.token = token
         this.channel_ids = channel_ids
         console.log(`attempting discord login`)
-        this.client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS,Intents.FLAGS.MESSAGE_CONTENT] });
+        this.client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS,Intents.FLAGS.MESSAGE_CONTENT,Intents.FLAGS.DIRECT_MESSAGES] });
         this.client.on('ready', () => {
             this.id = this.client.user.id
             console.log(`Logged in as ${this.client.user.tag}, userid ${this.id}`);
