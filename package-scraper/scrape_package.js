@@ -299,8 +299,12 @@ async function getPackageInfo(entry_file) {
 
         if(packageInfo.type == "players"){
             //player init needs a lot of stuff
-            const player_init = lua.global.get("player_init");
-            player_init(package_arg);
+            try{
+                const player_init = lua.global.get("player_init");
+                player_init(package_arg);
+            }catch(e){
+                console.warn(`error during player init, ignoring because im too lazy to find a solution that would support everything that can be done in player init`,e)
+            }
         }
 
         if (
