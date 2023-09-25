@@ -18,8 +18,8 @@ class Serverlist{
                 if(!last_alive_ts){
                     continue
                 }
-                //if a server has not been up for more than 2 weeks delete it
-                if(Date.now() - last_alive_ts > one_hour*14*24){
+                //if a server has not been up for more than 7 days delete it
+                if(Date.now() - last_alive_ts > one_hour*7*24){
                     await this.remove_server_by_id(server_id)
                 }
             }
@@ -78,7 +78,6 @@ class Serverlist{
             let secret_key = request_body?.secret_key
             let server_secret_key = this.serverlist.secret_keys[unique_server_id]
             let server_already_added = server_secret_key != null && server_secret_key != undefined
-            console.log('server already added?',server_already_added)
             if(server_already_added && server_secret_key != secret_key){
                 return {status:'invalid secret provided',changed_values:{}}
             }
@@ -112,7 +111,6 @@ class Serverlist{
                 this.serverlist.details[unique_server_id][field_name] = server_details[field_name]
             }
             if(should_write_to_disk){
-                console.log('saving serverlist')
                 await this.save_serverlist()
             }
             this.has_changed_since_last_get_all = true
