@@ -81,7 +81,7 @@ app.get('/mod_whitelist',function(req,res){
 
 const server = app.listen(PORT)
 //for websockets
-const wss = new WebSocketServer({ noServer: true });
+const wss = new WebSocketServer({ noServer: true, perMessageDeflate: false });
 wss.on('connection', socket => {
   socket.on('message', message => console.log(message));
 });
