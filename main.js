@@ -3,6 +3,7 @@ const { createWriteStream, fstat } = require('fs')
 const { resolve, parse, join } = require('path')
 const { file_exists, write_image_data_to_file_compressed, save_to_json, open_json} = require('./helpers.js')
 const { unlink, readdir, copyFile} = require('fs/promises')
+const { Formatters } = require('discord.js');
 
 const { scrape_package } = require('./package-scraper/package_scraper.js')
 const { zip_and_hash_package } = require('./zip_and_hash.js')
@@ -60,7 +61,7 @@ async function refresh_all_mods() {
         //NOTE, if you dont want to get rate limited while testing, comment the line above, and uncomment the line below.
         //let all_attachments = await open_json(all_attachment_info_cache)
         await save_to_json(all_attachment_info_cache,all_attachments)
-        console.log(`got list of all attachments`,all_attachments)
+        console.log(`got list of all attachments`)
         let new_attachments = await download_new_attachments(all_attachments)
 
         //iterate over each attachment and download it if we have not already got a copy in /mods
@@ -197,10 +198,13 @@ async function parse_attachments(attachments) {
                 await add_screenshot_to_skin(attachment)
             }
             else if(attachment_type == "mod"){
-                let mod_info = await parse_mod_info(attachment.path)
-                if (!mod_info) {
+                let mod_info
+                try{
+                    mod_info = await parse_mod_info(attachment.path)
+                }catch(e){
                     console.log(`UNABLE TO PARSE MOD`, attachment)
                     await bot.react_to_attachment_message(attachment, bad_mod_emoji)
+                    let channels = await bot.get_channels_by_ids([attachment_metadata.channel_id])
                     continue
                 }
 
@@ -307,12 +311,6 @@ async function parse_skin_info(attachment,attachment_metadata){
 }
 
 async function parse_mod_info(package_path) {
-    try {
-        let mod_info = await scrape_package(package_path)
-        return mod_info
-    } catch (e) {
-        console.log(`error parsing mod `, package_path)
-        console.log(e)
-        return null
-    }
+    let mod_info = await scrape_package(package_path)
+    return mod_info
 }

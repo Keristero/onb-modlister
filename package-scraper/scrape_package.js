@@ -267,7 +267,13 @@ async function getPackageInfo(entry_file) {
             },
             set_texture: (val) =>{
                 packageInfo.detail.texture = val
-            }
+            },
+            set_float_shoe: (val) => {
+                packageInfo.float_shoe = val
+            },
+            set_air_shoe: (val) => {
+                packageInfo.air_shoe = val
+            },
         };
 
         // load
@@ -293,8 +299,12 @@ async function getPackageInfo(entry_file) {
 
         if(packageInfo.type == "players"){
             //player init needs a lot of stuff
-            const player_init = lua.global.get("player_init");
-            player_init(package_arg);
+            try{
+                const player_init = lua.global.get("player_init");
+                player_init(package_arg);
+            }catch(e){
+                console.warn(`error during player init, ignoring because im too lazy to find a solution that would support everything that can be done in player init`,e)
+            }
         }
 
         if (

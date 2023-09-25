@@ -10,7 +10,7 @@ class Discordbot extends EventEmitter{
         this.token = token
         this.channel_ids = channel_ids
         console.log(`attempting discord login`)
-        this.client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS,Intents.FLAGS.MESSAGE_CONTENT] });
+        this.client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS,Intents.FLAGS.MESSAGE_CONTENT,Intents.FLAGS.DIRECT_MESSAGES] });
         this.client.on('ready', () => {
             this.id = this.client.user.id
             console.log(`Logged in as ${this.client.user.tag}, userid ${this.id}`);
@@ -129,7 +129,7 @@ class Discordbot extends EventEmitter{
         const channels = await this.get_channels_by_ids(this.channel_ids)
         //fetch all threads from channel, active and inactive
         let threads = await this.get_all_active_threads(channels)
-        console.log('active threads',threads)
+        console.log('active threads',threads.size)
         let archived_threads = await this.get_all_archived_threads(channels)
         threads = threads.concat(archived_threads)
         console.log('fetched',threads.size,'threads')
@@ -164,7 +164,6 @@ class Discordbot extends EventEmitter{
             try{
                 let thread_i = 1
                 for await (const thread of threads.values()){
-                    console.log(`getting all messages from thread ${thread_i}`)
                     let messages = await this.get_all_messages_in_thread(thread)
                     await async_sleep(rate_limit_avoidance_ms*2)
                     messages.forEach((message) => {

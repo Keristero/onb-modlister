@@ -70,9 +70,7 @@ class AsyncLock {
     }
 
     enable() {
-        console.log('enabled lock')
         this.promise = new Promise(resolve => this.disable = ()=>{
-            console.log('disabled lock')
             resolve()
         })
     }
