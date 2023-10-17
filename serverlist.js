@@ -74,6 +74,7 @@ class Serverlist{
             if(!unique_server_id){
                 return {status:'no unique id provided',changed_values:{}}
             }
+            unique_server_id = sanitize_string(unique_server_id)
 
             let secret_key = request_body?.secret_key
             let server_secret_key = this.serverlist.secret_keys[unique_server_id]
