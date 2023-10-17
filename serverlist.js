@@ -18,8 +18,8 @@ class Serverlist{
                 if(!last_alive_ts){
                     continue
                 }
-                //if a server has not been up for more than 7 days delete it
-                if(Date.now() - last_alive_ts > one_hour*7*24){
+                //if a server has not been up for more than 3 days delete it
+                if(Date.now() - last_alive_ts > one_hour*3*24){
                     await this.remove_server_by_id(server_id)
                 }
             }
