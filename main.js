@@ -3,7 +3,7 @@ const { createWriteStream, fstat } = require('fs')
 const { resolve, parse, join } = require('path')
 const { file_exists, write_image_data_to_file_compressed, save_to_json, open_json} = require('./helpers.js')
 const { unlink, readdir, copyFile} = require('fs/promises')
-const { Formatters } = require('discord.js');
+const { Formatters, MessageEmbed} = require('discord.js');
 
 const { scrape_package } = require('./package-scraper/package_scraper.js')
 const { zip_and_hash_package } = require('./zip_and_hash.js')
@@ -204,7 +204,21 @@ async function parse_attachments(attachments) {
                 }catch(e){
                     console.log(`UNABLE TO PARSE MOD`, attachment)
                     await bot.react_to_attachment_message(attachment, bad_mod_emoji)
-                    let channels = await bot.get_channels_by_ids([attachment_metadata.channel_id])
+                    const thread = await bot.get_attachment_thread(attachment)
+                    if (!thread || thread.archived){
+                        //cant react to archived threads
+                        continue
+                    }
+                    const message = await bot.get_attachment_message(attachment)
+                    if(!message){
+                        //cant react to messages that dont exist
+                        continue
+                    }
+                    const embed = new MessageEmbed()
+                    embed.setColor('#FF0000')
+                    embed.setTitle(`Error`)
+                    embed.setDescription(`${e.message} `);
+                    message.reply({ embeds: [embed] })
                     continue
                 }
 

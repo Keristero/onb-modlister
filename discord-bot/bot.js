@@ -1,5 +1,5 @@
 const { DISCORD_TOKEN, MODS_CHANNEL_ID ,SKINS_CHANNEL_ID} = require('../environment')
-const { Client, Intents, CommandInteractionOptionResolver, Collection} = require('discord.js');
+const { Client, Intents, CommandInteractionOptionResolver, Collection, MessageEmbed} = require('discord.js');
 const { async_sleep } = require('../helpers')
 const rate_limit_avoidance_ms = 50// minimum amount, it will be multiplied for certain tasks
 const EventEmitter = require('events');

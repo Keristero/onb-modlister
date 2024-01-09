@@ -345,6 +345,12 @@ function implementSupportingAPI(lua, packageInfo) {
         return update_path_and_run_lua(lua, file, false)
     })
 
+    lua.global.set("HitProps",{
+        new: function (a, b, c, d, e) {
+            return { a, b, c, d, e };
+        }
+    });
+
     lua.global.set("Engine", {
         load_texture: (path) => path,
         load_audio: (path) => path,
@@ -435,6 +441,12 @@ function implementSupportingAPI(lua, packageInfo) {
         Plus: "Plus",
         Break: "Break",
         None: "None",
+    });
+
+    lua.global.set("Team", {
+        Red: 1,
+        Blue: 2,
+        Other:3
     });
 
     lua.global.set("Drag", {
