@@ -46,7 +46,7 @@ function update_path_and_run_lua(lua, preloaded_lua, is_entry) {
     current_path = preloaded_lua.directory
     let modded_text = `_export = (function()\nlocal _folderpath = "${current_path}"\nlocal function include(path)\nreturn _ENV.include(_folderpath..path)\nend\n${preloaded_lua.preloaded_text}\nend)()\n`
     if (is_entry) {
-        modded_text = `local _folderpath = "${current_path}"\nlocal function include(path)\nreturn _ENV.include(_folderpath..path)\nend\n${preloaded_lua.preloaded_text}\n)()\n`
+        modded_text = `local _folderpath = "${current_path}"\nlocal function include(path)\nreturn _ENV.include(_folderpath..path)\nend\n${preloaded_lua.preloaded_text}\n`
     }
     console.log(`running lua ${preloaded_lua.fileName}`)
     console.log(`setting _folderpath to ${current_path}`)
