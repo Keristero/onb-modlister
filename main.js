@@ -162,6 +162,25 @@ async function download_new_attachments(attachments) {
     return new_attachments
 }
 
+async function error_reply(attachment,error){
+    const thread = await bot.get_attachment_thread(attachment)
+    if (!thread || thread.archived){
+        //cant react to archived threads
+        return
+    }
+    const message = await bot.get_attachment_message(attachment)
+    if(!message){
+        //cant react to messages that dont exist
+        return
+    }
+    await bot.react_to_attachment_message(attachment, bad_mod_emoji)
+    const embed = new MessageEmbed()
+    embed.setColor('#FF0000')
+    embed.setTitle(`Error`)
+    embed.setDescription(`${error.message} `);
+    message.reply({ embeds: [embed] })
+}
+
 async function parse_attachments(attachments) {
     //Sort new attachments so that screenshots will be processed last
     attachments.sort((a,b)=>{
@@ -174,6 +193,7 @@ async function parse_attachments(attachments) {
     })
     //parse each new attachment and add them to the modlist
     for (let attachment of attachments) {
+        const message = await bot.get_attachment_message(attachment)
         try {
             console.log('attachment', attachment.name)
             let attachment_metadata = {
@@ -203,51 +223,40 @@ async function parse_attachments(attachments) {
                     mod_info = await parse_mod_info(attachment.path)
                 }catch(e){
                     console.log(`UNABLE TO PARSE MOD`, attachment)
-                    await bot.react_to_attachment_message(attachment, bad_mod_emoji)
-                    const thread = await bot.get_attachment_thread(attachment)
-                    if (!thread || thread.archived){
-                        //cant react to archived threads
-                        continue
-                    }
-                    const message = await bot.get_attachment_message(attachment)
-                    if(!message){
-                        //cant react to messages that dont exist
-                        continue
-                    }
-                    const embed = new MessageEmbed()
-                    embed.setColor('#FF0000')
-                    embed.setTitle(`Error`)
-                    embed.setDescription(`${e.message} `);
-                    message.reply({ embeds: [embed] })
+                    error_reply(attachment,e)
                     continue
                 }
 
                 let validity = await modlist.test_mod_update_validity(mod_info, attachment_metadata)
                 if (validity == 'valid') {
-                    //zip and hash the package using the game client
-                    let client_res = await zip_and_hash_package(attachment.path, mod_info)
-                    if(client_res){
-                        mod_info.hash = client_res.hash
-                    }
-                    //save images from mod_info to disk for previewing
-                    if (mod_info?.detail?.icon) {
-                        try{
-                            let image_path = await write_image_data_to_file_compressed(`./images`, `${mod_info.id}_icon`, 'png', mod_info.detail.icon)
-                            mod_info.detail.icon = image_path
-                        }catch(e){
-                            console.log('unable to compress image',image_path)
+                    try{
+                        //zip and hash the package using the game client
+                        let client_res = await zip_and_hash_package(attachment.path, mod_info)
+                        if(client_res){
+                            mod_info.hash = client_res.hash
                         }
-                    }
-                    if (mod_info?.detail?.preview) {
-                        try{
-                            let image_path = await write_image_data_to_file_compressed(`./images`, `${mod_info.id}_preview`, 'png', mod_info.detail.preview)
-                            mod_info.detail.preview = image_path
-                        }catch(e){
-                            console.log('unable to compress image',image_path)
+                        //save images from mod_info to disk for previewing
+                        if (mod_info?.detail?.icon) {
+                            try{
+                                let image_path = await write_image_data_to_file_compressed(`./images`, `${mod_info.id}_icon`, 'png', mod_info.detail.icon)
+                                mod_info.detail.icon = image_path
+                            }catch(e){
+                                new Error(`Mod valid, but unable to compress icon image: ${mod_info.detail.icon}`, e)
+                            }
                         }
+                        if (mod_info?.detail?.preview) {
+                            try{
+                                let image_path = await write_image_data_to_file_compressed(`./images`, `${mod_info.id}_preview`, 'png', mod_info.detail.preview)
+                                mod_info.detail.preview = image_path
+                            }catch(e){
+                                new Error(`Mod valid, but unable to compress preview imasge: ${mod_info.detail.preview}`, e)
+                            }
+                        }
+                        await modlist.add_mod(mod_info, attachment_metadata)
+                        await bot.react_to_attachment_message(attachment, good_mod_emoji)
+                    }catch(e){
+                        error_reply(attachment,e)
                     }
-                    await modlist.add_mod(mod_info, attachment_metadata)
-                    await bot.react_to_attachment_message(attachment, good_mod_emoji)
                 } else if (validity == 'author') {
                     await bot.react_to_attachment_message(attachment, wrong_author_emoji)
                 } else if (validity == 'old') {
