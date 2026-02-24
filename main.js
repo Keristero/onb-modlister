@@ -3,7 +3,7 @@ const { createWriteStream, fstat } = require('fs')
 const { resolve, parse, join } = require('path')
 const { file_exists, write_image_data_to_file_compressed, save_to_json, open_json} = require('./helpers.js')
 const { unlink, readdir, copyFile} = require('fs/promises')
-const { Formatters, MessageEmbed} = require('discord.js');
+const { bold, EmbedBuilder} = require('discord.js');
 
 const { scrape_package } = require('./package-scraper/package_scraper.js')
 const { zip_and_hash_package } = require('./zip_and_hash.js')
@@ -174,7 +174,7 @@ async function error_reply(attachment,error){
         return
     }
     await bot.react_to_attachment_message(attachment, bad_mod_emoji)
-    const embed = new MessageEmbed()
+    const embed = new EmbedBuilder()
     embed.setColor('#FF0000')
     embed.setTitle(`Error`)
     embed.setDescription(`${error.message} `);

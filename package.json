@@ -1,12 +1,12 @@
 {
   "dependencies": {
-    "axios": "^1.4.0",
+    "axios": "^1.7.9",
     "cors": "^2.8.5",
-    "discord.js": "^13.11.0",
-    "express": "^4.18.1",
+    "discord.js": "^14.17.3",
+    "express": "^4.21.2",
     "jspngopt": "^0.2.0",
     "jszip": "^3.10.1",
-    "wasmoon": "^1.14.0",
-    "ws": "^8.13.0"
+    "wasmoon": "^1.16.0",
+    "ws": "^8.18.0"
   }
 }

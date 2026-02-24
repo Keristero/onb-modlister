@@ -1,5 +1,5 @@
 const { DISCORD_TOKEN, MODS_CHANNEL_ID ,SKINS_CHANNEL_ID} = require('../environment')
-const { Client, Intents, CommandInteractionOptionResolver, Collection, MessageEmbed} = require('discord.js');
+const { Client, GatewayIntentBits, CommandInteractionOptionResolver, Collection, EmbedBuilder} = require('discord.js');
 const { async_sleep } = require('../helpers')
 const rate_limit_avoidance_ms = 50// minimum amount, it will be multiplied for certain tasks
 const EventEmitter = require('events');
@@ -10,7 +10,15 @@ class Discordbot extends EventEmitter{
         this.token = token
         this.channel_ids = channel_ids
         console.log(`attempting discord login`)
-        this.client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS,Intents.FLAGS.MESSAGE_CONTENT,Intents.FLAGS.DIRECT_MESSAGES] });
+        this.client = new Client({ 
+            intents: [
+                GatewayIntentBits.Guilds, 
+                GatewayIntentBits.GuildMessages, 
+                GatewayIntentBits.GuildMessageReactions,
+                GatewayIntentBits.MessageContent,
+                GatewayIntentBits.DirectMessages
+            ] 
+        });
         this.client.on('ready', () => {
             this.id = this.client.user.id
             console.log(`Logged in as ${this.client.user.tag}, userid ${this.id}`);
